@@ -14,4 +14,14 @@ public interface IService
     [WebInvoke (Method = "GET",
                 ResponseFormat = WebMessageFormat.Json)]
     string GetUserSessionToken(string username, string password);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string GetLoggedInUserData(string sessionId);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string AddNewUser(string username, string password, string email, string firstName, string lastName, string location, string birthDate, string gender);
 }

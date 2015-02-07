@@ -18,7 +18,9 @@
     margin: 0 auto;
 }
 
-.padding-5
+.thin-separator
 {
-    padding: 5px;
+    margin: 10px auto;
+    height: 1px;
+    background-color: #FDFDFD;
 }
