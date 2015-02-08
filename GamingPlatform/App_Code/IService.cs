@@ -52,4 +52,48 @@ public interface IService
     string addNewStore(string location, string address, string dateOpened);
 
     #endregion
+
+    #region Link adding
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewSells(string storeAddress, string gameTitle, string price, string discount, string quantity);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewDevelops(string developerName, string gameTitle);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewRates(string username, string gameTitle, string rating);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewReviews(string username, string gameTitle, string content, string date);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewPlays(string username, string gameTitle, string hoursTotal, string dateSince);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewIsFriendsWith(string username1, string username2, string dateSince);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewPosts(string username, string content, string timestamp);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewHas(string username, string content, string timestamp);
+
+    #endregion
 }

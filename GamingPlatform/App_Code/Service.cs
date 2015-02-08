@@ -241,4 +241,48 @@ public class Service : IService
     }
 
     #endregion
+
+    #region Link adding
+
+    public string addNewSells(string storeAddress, string gameTitle, string price, string discount, string quantity)
+    {
+        return string.Empty;
+    }
+
+    public string addNewDevelops(string developerName, string gameTitle)
+    {
+        return string.Empty;
+    }
+
+    public string addNewRates(string username, string gameTitle, string rating)
+    {
+        return string.Empty;
+    }
+
+    public string addNewReviews(string username, string gameTitle, string content, string date)
+    {
+        return string.Empty;
+    }
+
+    public string addNewPlays(string username, string gameTitle, string hoursTotal, string dateSince)
+    {
+        return string.Empty;
+    }
+
+    public string addNewIsFriendsWith(string username1, string username2, string dateSince)
+    {
+        return string.Empty;
+    }
+
+    public string addNewPosts(string username, string content, string timestamp)
+    {
+        return string.Empty;
+    }
+
+    public string addNewHas(string username, string content, string timestamp)
+    {
+        return string.Empty;
+    }
+
+    #endregion
 }
