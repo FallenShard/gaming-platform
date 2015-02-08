@@ -16,6 +16,8 @@ using Newtonsoft.Json;
 [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
 public class Service : IService
 {
+    #region User authentication
+
     public string GetUserSessionToken(string username, string password)
     {
         string token = "guest";
@@ -72,6 +74,15 @@ public class Service : IService
         return Convert.ToBase64String(EncryptedBytes);
     }
 
+    #endregion
+
+    private string toJson(object obj)
+    {
+        return JsonConvert.SerializeObject(obj);
+    }
+
+    #region Data adding
+
     public string AddNewUser(string username, string password, string email, string firstName, string lastName, string location, string birthDate, string gender)
     {
         string retVal = "failed";
@@ -111,4 +122,123 @@ public class Service : IService
 
         return newUser.sessionId;
     }
+
+    public string AddNewDeveloper(string name, string location, string owner, string website)
+    {
+        string retVal = "failed";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(developer:Developer)")
+            .Where((Developer developer) => developer.name == name)
+            .Return(developer => developer.As<Developer>()).Results;
+
+        // There's already a develoepr with that name
+        if (results.Count() > 0)
+            return retVal;
+
+        Developer newDeveloper = new Developer();
+        newDeveloper.name = name;
+        newDeveloper.location = location;
+        newDeveloper.owner = owner;
+        newDeveloper.website = website;
+
+        client.Cypher
+            .Create("(developer:Developer {newDeveloper})")
+            .WithParam("newDeveloper", newDeveloper)
+            .ExecuteWithoutResults();
+
+        return toJson(newDeveloper);
+    }
+
+    public string addNewGame(string title, string description, string genre, string mode, string publisher, string[] platforms, string releaseDate, string thumbnail, string logo, string[] images, string review, string website, string additionalInfo)
+    {
+        string retVal = "failed";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(game:Game)")
+            .Where((Game game) => game.title == title)
+            .Return(game => game.As<Game>()).Results;
+
+        // There's already a game with that title
+        if (results.Count() > 0)
+            return retVal;
+
+        Game newGame = new Game();
+        newGame.title = title;
+        newGame.description = description;
+        newGame.genre = genre;
+        newGame.mode = mode;
+        newGame.publisher = publisher;
+        newGame.platforms = platforms;
+        newGame.releaseDate = releaseDate;
+        newGame.thumbnail = thumbnail;
+        newGame.logo = logo;
+        newGame.images = images;
+        newGame.review = review;
+        newGame.website = website;
+        newGame.additionalInfo = additionalInfo;
+
+        client.Cypher
+            .Create("(game:Game {newGame})")
+            .WithParam("newGame", newGame)
+            .ExecuteWithoutResults();
+
+        return toJson(newGame);
+    }
+
+    public string addNewWallPost(string content, string timestamp)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        // No checks needed
+
+        WallPost newWallPost = new WallPost();
+        newWallPost.content = content;
+        newWallPost.timestamp = timestamp;
+
+        client.Cypher
+            .Create("(wallPost:WallPost {newWallPost})")
+            .WithParam("newWallPost", newWallPost)
+            .ExecuteWithoutResults();
+
+        return toJson(newWallPost);
+    }
+
+    public string addNewStore(string location, string address, string dateOpened)
+    {
+        string retVal = "failed";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(store:Store)")
+            .Where((Store store) => store.address == address)
+            .Return(store => store.As<Store>()).Results;
+
+        // There's already a store with that address
+        if (results.Count() > 0)
+            return retVal;
+
+        Store newStore = new Store();
+        newStore.location = location;
+        newStore.address = address;
+        newStore.dateOpened = dateOpened;
+
+        client.Cypher
+            .Create("(store:Store {newStore})")
+            .WithParam("newStore", newStore)
+            .ExecuteWithoutResults();
+
+        return toJson(newStore);
+    }
+
+    #endregion
 }
