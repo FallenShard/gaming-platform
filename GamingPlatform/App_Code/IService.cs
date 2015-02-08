@@ -10,6 +10,8 @@ using System.Text;
 [ServiceContract]
 public interface IService
 {
+    #region User authentication
+
     [OperationContract]
     [WebInvoke (Method = "GET",
                 ResponseFormat = WebMessageFormat.Json)]
@@ -20,8 +22,78 @@ public interface IService
                 ResponseFormat = WebMessageFormat.Json)]
     string GetLoggedInUserData(string sessionId);
 
+    #endregion
+
+    #region Data adding
+
     [OperationContract]
     [WebInvoke(Method = "GET",
                 ResponseFormat = WebMessageFormat.Json)]
     string AddNewUser(string username, string password, string email, string firstName, string lastName, string location, string birthDate, string gender);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string AddNewDeveloper(string name, string location, string owner, string website);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewGame(string title, string description, string genre, string mode, string publisher, string[] platforms, string releaseDate, string thumbnail, string logo, string[] images, string review, string website, string additionalInfo);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewWallPost(string content, string timestamp);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewStore(string location, string address, string dateOpened);
+
+    #endregion
+
+    #region Link adding
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewSells(string storeAddress, string gameTitle, string price, string discount, string quantity);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewDevelops(string developerName, string gameTitle);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewRates(string username, string gameTitle, string rating);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewReviews(string username, string gameTitle, string content, string date);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewPlays(string username, string gameTitle, string hoursTotal, string dateSince);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewIsFriendsWith(string username1, string username2, string dateSince);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewPosts(string username, string content, string timestamp);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string addNewHas(string username, string content, string timestamp);
+
+    #endregion
 }
