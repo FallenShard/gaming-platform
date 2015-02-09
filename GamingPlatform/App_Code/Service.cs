@@ -12,6 +12,9 @@ using System.ServiceModel.Activation;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
 
+using Nodes;
+using Relationships;
+
 // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "Service" in code, svc and config file together.
 [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
 public class Service : IService
@@ -83,36 +86,25 @@ public class Service : IService
 
     #region Data adding
 
-    public string AddNewUser(string username, string password, string email, string firstName, string lastName, string location, string birthDate, string gender)
+    public string AddNewUser(User newUser)
     {
-        string retVal = "failed";
-
         GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
         client.Connect();
 
         var results = client.Cypher
             .Match("(user:User)")
-            .Where((User user) => user.username == username)
+            .Where((User user) => user.username == newUser.username)
             .Return(user => user.As<User>()).Results;
 
         // There's already a user with that username
         if (results.Count() > 0)
-            return retVal;
+            return "failed";
 
         Random rnd = new Random();
         int avatarId = rnd.Next(1, 20);
 
-        User newUser = new User();
-        newUser.username = username;
-        newUser.password = password;
-        newUser.email = email;
-        newUser.firstName = firstName;
-        newUser.lastName = lastName;
-        newUser.birthDate = birthDate;
-        newUser.location = location;
-        newUser.gender = gender;
         newUser.avatarImage = "avatar" + avatarId + ".jpg";
-        newUser.status = "User";
+        newUser.status = "Member";
         newUser.sessionId = CreateSHAHash(newUser.username + newUser.password); ;
 
         client.Cypher
@@ -120,7 +112,7 @@ public class Service : IService
             .WithParam("newUser", newUser)
             .ExecuteWithoutResults();
 
-        return newUser.sessionId;
+        return toJson(newUser);
     }
 
     public string AddNewDeveloper(string name, string location, string owner, string website)
@@ -153,7 +145,7 @@ public class Service : IService
         return toJson(newDeveloper);
     }
 
-    public string addNewGame(string title, string description, string genre, string mode, string publisher, string[] platforms, string releaseDate, string thumbnail, string logo, string[] images, string review, string website, string additionalInfo)
+    public string addNewGame(string title, string description, string genre, string mode, string publisher, string platforms, string releaseDate, string thumbnail, string logo, string images, string review, string website, string additionalInfo)
     {
         string retVal = "failed";
 
@@ -175,11 +167,11 @@ public class Service : IService
         newGame.genre = genre;
         newGame.mode = mode;
         newGame.publisher = publisher;
-        newGame.platforms = platforms;
+        //newGame.platforms = platforms.to;
         newGame.releaseDate = releaseDate;
         newGame.thumbnail = thumbnail;
         newGame.logo = logo;
-        newGame.images = images;
+        //newGame.images = images;
         newGame.review = review;
         newGame.website = website;
         newGame.additionalInfo = additionalInfo;

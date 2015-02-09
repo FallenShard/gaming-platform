@@ -13,39 +13,14 @@
 
     <script src="scripts/jquery-2.1.3.min.js"></script>
     <script src="scripts/bootstrap.min.js"></script>
+    
+    <script src="scripts/header.js"></script>
     <script src="scripts/index.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <a class="navbar-brand logo-style" href="#">GRID</a>
-            </div>
-            <div id="navbar" class="navbar-collapse collapse">
-                <div class="navbar-right" style="padding-right: 15px;">
-                    <button type="button" data-toggle="modal" href="#log-in-modal" class="guest-tools btn btn-primary navbar-btn">Log in</button>
-                    <button type="button" data-toggle="modal" href="#sign-up-modal" class="guest-tools btn btn-success navbar-btn">Sign Up</button>
-                    <span id="welcome-span" class="user-tools">Welcome, User</span>
-                    <button id="go-to-profile-button" type="button" class="user-tools btn btn-primary navbar-btn">Go to Profile</button>
-                    <button id="log-out-button" type="button" class="user-tools btn btn-primary navbar-btn">Log out</button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container text-center well-sm">
-        <div class="row">
-            <div class="col-xs-4">
-                <button type="button" class="btn btn-default btn-block">Games</button>
-            </div>
-            <div class="col-xs-4">
-                <button type="button" class="btn btn-default btn-block">Developers</button>
-            </div>
-            <div class="col-xs-4">
-                <button type="button" class="btn btn-default btn-block">Stores</button>
-            </div>
-        </div>
+    <div id="header-div">
     </div>
+    
 
     <div id="overview-carousel" class="carousel slide" data-ride="carousel">
         <!-- Indicators -->
@@ -96,124 +71,6 @@
         </a>
     </div><!-- /.carousel -->
 
-    <div class="modal fade" id="log-in-modal">
-        <div class="modal-dialog bs-example-modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title">Log in</h4>
-                </div>
-                <div class="modal-body container-fluid">
-                    <form>
-                        <label for="inputUsername">Username</label>
-                        <input type="text" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
-                        <label for="inputPassword">Password</label>
-                        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-                        <!--<div class="checkbox">
-                            <label>
-                                <input type="checkbox" value="remember-me"> Remember me
-                            </label>
-                        </div>-->
-                    </form>
-                    <div id="log-in-alert" class="alert alert-danger alert-dismissible" role="alert">Username and/or password are not correct.</div>
-                </div>
-                <div class="modal-footer">
-                    <a href="#" data-dismiss="modal" class="btn btn-default">Close</a>
-                    <a href="#" id="log-in-button" class="btn btn-primary">Log in</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="sign-up-modal" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title title-font">Sign Up</h4>
-                </div>
-                <div id="modal-add-body" class="modal-body container-fluid">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label for="usernameInput" class="col-sm-2 control-label">Username</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="usernameInput" placeholder="Unique, alphanumeric and between 8-20 characters" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="passwordInput" class="col-sm-2 control-label">Password</label>
-                            <div class="col-sm-10">
-                                <input type="password" class="form-control" id="passwordInput" placeholder="Consists of alphanumeric and special characters" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="repeatPassInput" class="col-sm-2 control-label">Repeat Password</label>
-                            <div class="col-sm-10">
-                                <input type="password" class="form-control" id="repeatPassInput" placeholder="Repeat password here" />
-                            </div>
-                        </div>
-                        <div class="thin-separator"></div>
-                        <div class="form-group">
-                            <label for="emailInput" class="col-sm-2 control-label">Email</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="emailInput" placeholder="Your email goes here" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="firstNameInput" class="col-sm-2 control-label">First Name</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="firstNameInput" placeholder="Your first name" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="lastNameInput" class="col-sm-2 control-label">Last Name</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="lastNameInput" placeholder="Your last name" />
-                            </div>
-                        </div>
-                        <div class="thin-separator"></div>
-                        <div class="form-group">
-                            <label for="lastNameInput" class="col-sm-2 control-label">Birth Date</label>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" id="yearInput" placeholder="Year" />
-                            </div>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" id="monthInput" placeholder="Month" />
-                            </div>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" id="dayInput" placeholder="Day" />
-                            </div>
-                        </div>
-                        <div id="gender-group" class="form-group">
-                            <label class="col-sm-2 control-label">Gender</label>
-                            <div class="col-sm-9">
-                                <label class="radio-inline">
-                                    <input type="radio" name="optradio" value="M">Male
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="optradio" value="F">Female
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="optradio" value="O">Other
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="locationInput" class="col-sm-2 control-label">Location</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="locationInput" placeholder="It can be anything, even a place from fiction" />
-                            </div>
-                        </div>
-                    </form>
-                    <div id="sign-up-alert" class="alert alert-success alert-dismissible" role="alert">Registration successful! You can now log in.</div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="sign-up-button" type="button" class="btn btn-success">Confirm</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script src="scripts/jquery.rateit.min.js"></script>
 </body>

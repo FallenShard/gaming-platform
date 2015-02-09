@@ -6,6 +6,9 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
 
+using Nodes;
+using Relationships;
+
 // NOTE: You can use the "Rename" command on the "Refactor" menu to change the interface name "IService" in both code and config file together.
 [ServiceContract]
 public interface IService
@@ -27,9 +30,11 @@ public interface IService
     #region Data adding
 
     [OperationContract]
-    [WebInvoke(Method = "GET",
-                ResponseFormat = WebMessageFormat.Json)]
-    string AddNewUser(string username, string password, string email, string firstName, string lastName, string location, string birthDate, string gender);
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string AddNewUser(User newUser);
 
     [OperationContract]
     [WebInvoke(Method = "GET",
@@ -39,7 +44,7 @@ public interface IService
     [OperationContract]
     [WebInvoke(Method = "GET",
                 ResponseFormat = WebMessageFormat.Json)]
-    string addNewGame(string title, string description, string genre, string mode, string publisher, string[] platforms, string releaseDate, string thumbnail, string logo, string[] images, string review, string website, string additionalInfo);
+    string addNewGame(string title, string description, string genre, string mode, string publisher, string platforms, string releaseDate, string thumbnail, string logo, string images, string review, string website, string additionalInfo);
 
     [OperationContract]
     [WebInvoke(Method = "GET",
