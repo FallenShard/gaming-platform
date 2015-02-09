@@ -1,0 +1,27 @@
+﻿.yellow-text {
+    color: yellow;
+}
+
+.green-text {
+    color: green;
+}
+
+.italic-text {
+    font-style: italic;
+}
+
+#game-name {
+    text-align: center;
+}
+
+.fixed-width {
+    max-width: 100%;
+}
+
+.owner-tools {
+    /**/
+}
+
+.non-owner-tools {
+    /**/
+}
