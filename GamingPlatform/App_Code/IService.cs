@@ -23,7 +23,41 @@ public interface IService
     [OperationContract]
     [WebInvoke(Method = "GET",
                 ResponseFormat = WebMessageFormat.Json)]
-    string GetLoggedInUserData(string sessionId);
+    string GetUserBySessionId(string sessionId);
+
+    #endregion
+
+    #region Data retrieval
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string GetUserByUsername(string username);
+
+    #endregion
+
+    #region Friendship
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string ResolveFriendship(string viewer, string openedUser);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string CreateFriendRequest(string sourceUser, string targetUser);
+
+    #endregion
+
+    #region Data editing
+
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string EditUser(User editedUser);
 
     #endregion
 

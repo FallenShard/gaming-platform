@@ -11,6 +11,17 @@
 {
     font-size: 2em;
     font-family: 'Michroma', sans-serif;
+    -webkit-transition: text-shadow 1s linear;
+    -moz-transition: text-shadow 1s linear;
+    -ms-transition: text-shadow 1s linear;
+    -o-transition: text-shadow 1s linear;
+    transition: text-shadow 1s linear;
+}
+
+.logo-style:hover,
+.logo-style.glow
+{
+    text-shadow: 0 0 10px #FFFF66;
 }
 
 .carousel-inner > .item > img
@@ -23,4 +34,40 @@
     margin: 10px auto;
     height: 1px;
     background-color: #FDFDFD;
+}
+
+.theme-color-yellow
+{
+    color: yellow;
+}
+
+#profile-title
+{
+    padding-left: 15px;
+}
+
+.theme-color
+{
+    color: #FFFF66;
+}
+
+.thin-separator-theme
+{
+    margin: 10px auto;
+    height: 2px;
+    background-color: #FFFF66;
+}
+
+.attrib-meta
+{
+    color: #808080;
+}
+
+.top-margin-15
+{
+    margin-top: 15px;
+}
+
+.hide {
+    display: none;
 }

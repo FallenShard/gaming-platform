@@ -20,8 +20,10 @@
     };
 
     var controller = {
+        reloadPage: true,
         init: function () {
             if (sessionStorage.id) {
+                this.reloadPage = false;
                 this.requestUserData(sessionStorage.id);
             }
             else {
@@ -34,7 +36,8 @@
 
             $("#log-out-button").click(function () {
                 delete sessionStorage.id;
-                location.reload(true);
+                delete sessionStorage.activeUser;
+                window.location.replace("index.html");
             });
 
             $("#sign-up-button").click(function () {
@@ -43,6 +46,12 @@
 
             $("#go-to-profile-button").click(function () {
                 window.location.replace("user.html?username=" + model.userData.username);
+            });
+
+            $("#loginPassword").keyup(function (event) {
+                if (event.keyCode == 13) {
+                    $("#log-in-button").click();
+                }
             });
         },
 
@@ -53,7 +62,6 @@
 
         requestSessionId: function (loginData) {
             $.ajax({
-                async: false,
                 type: "GET",
                 url: "Service.svc/GetUserSessionToken",
                 data: loginData,
@@ -85,9 +93,8 @@
 
         requestUserData: function (session) {
             $.ajax({
-                async: false,
                 type: "GET",
-                url: "Service.svc/GetLoggedInUserData",
+                url: "Service.svc/GetUserBySessionId",
                 data: { sessionId: session },
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
@@ -109,13 +116,17 @@
                 model.userData = JSON.parse(userData);
                 model.loggedIn = true;
 
+                sessionStorage.activeUser = userData;
+
                 view.setupLoggedInNavbar();
+
+                if (this.reloadPage)
+                    location.reload(true);
             }
         },
 
         requestSignUp: function (signUpData) {
             $.ajax({
-                async: false,
                 type: "POST",
                 url: "Service.svc/AddNewUser",
                 data: JSON.stringify(signUpData),
@@ -138,13 +149,21 @@
                 $("#sign-up-alert").show('fast');
 
                 model.userData = JSON.parse(receivedData);
-                view.setupLoggedInNavbar();
-                sessionStorage.id = model.userData.sessionId;
                 model.loggedIn = true;
+
+                
+                sessionStorage.id = model.userData.sessionId;
+                sessionStorage.activeUser = receivedData;
+
+                view.setupLoggedInNavbar();
 
                 setTimeout(function () {
                     $('#sign-up-modal').modal('hide');
-                }, 3000);
+                }, 500);
+                setTimeout(function () {
+                    //location.reload(true);
+                    window.location.replace("index.html");
+                }, 1000);
             }
         }
     };
@@ -161,12 +180,17 @@
             $(".guest-tools").hide();
             $("#log-in-alert").hide();
             $("#sign-up-alert").hide();
+
+            var glow = $('.logo-style');
+            setInterval(function () {
+                glow.toggleClass('glow');
+            }, 1000);
         },
 
         getLoginData: function () {
             return {
-                username: $("#inputUsername").val(),
-                password: $("#inputPassword").val()
+                username: $("#loginUsername").val(),
+                password: $("#loginPassword").val()
             };
         },
 
@@ -189,7 +213,7 @@
             signUpData.location = $("#locationInput").val();
             signUpData.gender = $("#gender-group input:radio:checked").val();
 
-            if (!this.validateAlphanumeric(signUpData.username))
+            if (this.validateAlphanumeric(signUpData.username))
                 errorMessage += "\n - Username must contain alphanumeric characters only";
             if (signUpData.username.length > 20 || signUpData.username.length < 8)
                 errorMessage += "\n - Username must be 8-20 characters long";
@@ -204,6 +228,7 @@
             var month = parseInt($("#monthInput").val());
             var day = parseInt($("#dayInput").val());
             var date = new Date();
+            date.setHours(0, 0, 0, 0);
             this.dateValidator.init();
 
             if (isNaN(year) || year < 0)
@@ -214,12 +239,9 @@
                 errorMessage += "\n - Invalid value for day";
 
             if (errorMessage === "") {
-                alert("Success!");
-                date.setYear(year);
-                date.setMonth(month);
-                date.setDate(day);
-
-                signUpData.birthDate = JSON.stringify(date);
+                console.log("Success!");
+                date.setFullYear(year, month - 1, day);
+                signUpData.birthDate = date.getTime();
 
                 controller.requestSignUp(signUpData);
             }
@@ -229,7 +251,7 @@
         },
 
         validateAlphanumeric: function (string) {
-            if (/[^a-zA-Z0-9]/.test(string)) {
+            if (/^[a-z0-9]+$/i.test(string)) {
                 return false;
             }
             return true;

@@ -37,7 +37,7 @@ public class Service : IService
         if (results.Count() > 0)
         {
             User result = results.First();
-            token = CreateSHAHash(result.username + result.password);
+            token = CreateSHAHash(result.username + result.password + DateTime.Now.ToString("MM\\/dd\\/yyyy h\\:mm tt"));
             client.Cypher
                 .Match("(user:User)")
                 .Where((User user) => user.username == username)
@@ -50,7 +50,7 @@ public class Service : IService
         return token;
     }
 
-    public string GetLoggedInUserData(string sessionId)
+    public string GetUserBySessionId(string sessionId)
     {
         string data = "guest";
 
@@ -79,10 +79,98 @@ public class Service : IService
 
     #endregion
 
+    public string GetUserByUsername(string username)
+    {
+        string data = "failed";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(user:User)")
+            .Where((User user) => user.username == username)
+            .Return(user => user.As<User>()).Results;
+
+        if (results.Count() == 1)
+            data = toJson(results.First());
+
+        return data;
+    }
+
+
     private string toJson(object obj)
     {
         return JsonConvert.SerializeObject(obj);
     }
+
+    #region Friendship
+
+    public string ResolveFriendship(string viewer, string openedUser)
+    {
+        string data = "nothing";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var isFriends = client.Cypher
+            .Match("(user:User)-[r:IS_FRIENDS_WITH]->(friend:User)")
+            .Where((User user) => user.username == viewer)
+            .AndWhere((User friend) => friend.username == openedUser)
+            .Return(() => Return.As<int>("count(r)"))
+            .Results.Single();
+
+        if (isFriends > 0)
+            data = "friends";
+
+        var reqSent = client.Cypher
+            .Match("(user:User)-[r:REQUEST_FRIEND]->(friend:User)")
+            .Where((User user) => user.username == viewer)
+            .AndWhere((User friend) => friend.username == openedUser)
+            .Return(() => Return.As<int>("count(r)"))
+            .Results.Single();
+
+        if (reqSent > 0)
+            data = "requestSent";
+
+        return data;
+    }
+
+    public string CreateFriendRequest(string sourceUser, string targetUser)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(user1:User)", "(user2:User)")
+            .Where((User user1) => user1.username == sourceUser)
+            .AndWhere((User user2) => user2.username == targetUser)
+            .CreateUnique("user1-[:REQUEST_FRIEND]->user2")
+            .ExecuteWithoutResults();
+
+        return "Friend request sent";
+    }
+
+    #endregion
+
+    #region Data editing
+
+    public string EditUser(User editedUser)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(user:User)")
+            .Where((User user) => user.username == editedUser.username)
+            .Set("user = {editedUser}")
+            .WithParam("editedUser", editedUser)
+            .ExecuteWithoutResults();
+
+        return toJson(editedUser);
+    }
+
+    #endregion
+
 
     #region Data adding
 
@@ -101,11 +189,11 @@ public class Service : IService
             return "failed";
 
         Random rnd = new Random();
-        int avatarId = rnd.Next(1, 20);
+        int avatarId = rnd.Next(1, 10);
 
         newUser.avatarImage = "avatar" + avatarId + ".jpg";
         newUser.status = "Member";
-        newUser.sessionId = CreateSHAHash(newUser.username + newUser.password); ;
+        newUser.sessionId = CreateSHAHash(newUser.username + newUser.password + DateTime.Now.ToString("MM\\/dd\\/yyyy h\\:mm tt"));
 
         client.Cypher
             .Create("(user:User {newUser})")

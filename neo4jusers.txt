@@ -1,0 +1,98 @@
+// Users
+CREATE (FallenShard:User 
+        { username: "FallenShard",
+          password: "FallenShard",
+          email: "nemanjabartolovic@yahoo.com",
+          firstName: "Nemanja",
+          lastName: "Bartolovic",
+          birthDate: "695184000000",
+          location: "Middle-earth",
+          gender: "M",
+          avatarImage: "avatar1.jpg",
+          status: "Member",
+          sessionId: ""
+        })
+        
+CREATE (Mefisto:User 
+        { username: "Mefisto",
+          password: "Mefisto",
+          email: "stefan.stojanovic@elfak.rs",
+          firstName: "Stefan",
+          lastName: "Stojanovic",
+          birthDate: "727095600000",
+          location: "Serbia",
+          gender: "M",
+          avatarImage: "avatar2.jpg",
+          status: "Member",
+          sessionId: ""
+        })
+
+CREATE (admin:User 
+        { username: "admin",
+          password: "admin",
+          email: "admin@grid.com",
+          firstName: "Administrator",
+          lastName: "McAdminson",
+          birthDate: "-2207998800000",
+          location: "Adminland",
+          gender: "O",
+          avatarImage: "admin.png",
+          status: "Admin",
+          sessionId: ""
+        })
+
+CREATE (Johnny87:User 
+        { username: "Johnny87",
+          password: "Johnny87",
+          email: "johnny.smith87@gmail.com",
+          firstName: "John",
+          lastName: "Smith",
+          birthDate: "541724400000",
+          location: "United States",
+          gender: "M",
+          avatarImage: "avatar3.jpg",
+          status: "Member",
+          sessionId: ""
+        })
+        
+CREATE (Marinijum:User 
+        { username: "Marinijum",
+          password: "Marinijum",
+          email: "marina92@yahoo.com",
+          firstName: "Marina",
+          lastName: "Stevanovic",
+          birthDate: "723337200000",
+          location: "Middle of nowhere",
+          gender: "M",
+          avatarImage: "avatar4.jpg",
+          status: "Member",
+          sessionId: ""
+        })
+        
+CREATE (Masterooo:User 
+        { username: "Masterooo",
+          password: "Masterooo",
+          email: "masterooo95@yahoo.com",
+          firstName: "Xuan",
+          lastName: "Li",
+          birthDate: "791679600000",
+          location: "China",
+          gender: "M",
+          avatarImage: "avatar5.jpg",
+          status: "Member",
+          sessionId: ""
+        })
+
+CREATE (GandalfTheGrey:User 
+        { username: "GandalfTheGrey",
+          password: "GandalfTheGrey",
+          email: "bryantheslayer91@yahoo.com",
+          firstName: "Bryan",
+          lastName: "Keeley",
+          birthDate: "670716000000",
+          location: "Westeros",
+          gender: "M",
+          avatarImage: "avatar6.jpg",
+          status: "Member",
+          sessionId: ""
+        })

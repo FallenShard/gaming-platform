@@ -21,8 +21,211 @@
     <div id="header-div">
     </div>
 
-    <div id="content-div">
+    <div id="content-div" class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1 id="profile-title" class="theme-color-yellow"></h1>
+            </div>
+        </div>
 
+        <div class="row">
+            <div class="col-xs-3">
+                <div class="well">
+                    <ul class="nav nav-pills nav-stacked" id="user-tabs">
+                        <li class="active"><a href="#user-panel">User Panel</a></li>
+                        <li><a href="#profile">Games</a></li>
+                        <li><a href="#friends">Friends</a></li>
+                        <li><a href="#wall">Wall</a></li>
+                        <li><a href="#friend-requests">Friend Requests</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-9">
+                <div class="tab-content">
+                    <div class="tab-pane active container-fluid fade in" id="user-panel">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <img id="avatar-img" class="img-responsive" alt="profile-pic" onerror="if (this.src != 'http://placehold.it/300x300') this.src = 'http://placehold.it/300x300';">
+                                <button id="open-edit-dlg-btn" type="button" class="btn btn-warning top-margin-15 hide" data-toggle="modal" data-target="#edit-user-modal">
+                                    Edit Profile
+                                </button>
+                                <button id="add-friend-button" type="button" data-loading-text="Friend Request Sent" class="btn btn-success top-margin-15 hide" autocomplete="off">
+                                    Send Friend Request
+                                </button>
+                                <div id="is-friends-div" class="hide">
+                                    <label>Friends</label>
+                                    <span class="glyphicon glyphicon-ok glyph-class"></span>
+                                </div>
+                            </div>
+                            <div class="col-xs-8">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <h2 id="username-label" class="theme-color"></h2>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12 thin-separator-theme">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-4">
+                                        <h4 class="attrib-meta">First Name:</h4>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <h4 id="first-name-label"></h4>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-4">
+                                        <h4 class="attrib-meta">Last Name:</h4>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <h4 id="last-name-label"></h4>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-4">
+                                        <h4 class="attrib-meta">Birth Date:</h4>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <h4 id="birth-date-label"></h4>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-4">
+                                        <h4 class="attrib-meta">Location:</h4>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <h4 id="location-label"></h4>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-4">
+                                        <h4 class="attrib-meta">Gender:</h4>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <h4 id="gender-label"></h4>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-4">
+                                        <h4 class="attrib-meta">Status:</h4>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <h4 id="status-label"></h4>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-4">
+                                        <h4 class="attrib-meta">email:</h4>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <h4 id="email-label"></h4>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="profile">Games</div>
+                    <div class="tab-pane fade" id="friends">Friends</div>
+                    <div class="tab-pane fade" id="wall">Wall</div>
+                    <div class="tab-pane fade" id="friend-requests">Friend Requests</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="edit-user-modal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title title-font">Edit Profile</h4>
+                </div>
+                <div id="modal-edit-body" class="modal-body container-fluid">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="editPassword" class="col-sm-2 control-label">Password</label>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" id="editPassword" placeholder="Consists of alphanumeric and special characters" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editRepeatPassword" class="col-sm-2 control-label">Repeat Password</label>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" id="editRepeatPassword" placeholder="Repeat password here" />
+                            </div>
+                        </div>
+                        <div class="thin-separator"></div>
+                        <div class="form-group">
+                            <label for="editEmail" class="col-sm-2 control-label">Email</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="editEmail" placeholder="Your email goes here" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editFirstName" class="col-sm-2 control-label">First Name</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="editFirstName" placeholder="Your first name" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editLastName" class="col-sm-2 control-label">Last Name</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="editLastName" placeholder="Your last name" />
+                            </div>
+                        </div>
+                        <div class="thin-separator"></div>
+                        <div class="form-group">
+                            <label for="editYear" class="col-sm-2 control-label">Birth Date</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="editYear" placeholder="Year" />
+                            </div>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="editMonth" placeholder="Month" />
+                            </div>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="editDay" placeholder="Day" />
+                            </div>
+                        </div>
+                        <div id="edit-gender-group" class="form-group">
+                            <label class="col-sm-2 control-label">Gender</label>
+                            <div class="col-sm-9">
+                                <label class="radio-inline">
+                                    <input id="rbMale" type="radio" name="optradio" value="M">Male
+                                </label>
+                                <label class="radio-inline">
+                                    <input id="rbFemale" type="radio" name="optradio" value="F">Female
+                                </label>
+                                <label class="radio-inline">
+                                    <input id="rbOther" type="radio" name="optradio" value="O">Other
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editLocation" class="col-sm-2 control-label">Location</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="editLocation" placeholder="It can be anything, even a place from fiction" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editAvatar" class="col-sm-2 control-label">Avatar Image</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="editAvatar" placeholder="It should be avatar1-10.jpg" />
+                            </div>
+                        </div>
+                        
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="confirm-edit-button" type="button" class="btn btn-success">Confirm</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 

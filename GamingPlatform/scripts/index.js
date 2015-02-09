@@ -1,8 +1,10 @@
 ﻿(function () {
     'use strict';
 
-    function loadContent() {
-        headerBar.init();
+    function documentInit() {
+        $("#header-div").load("header.html", function () {
+            headerBar.init();
+        });
 
         console.log("Loading content!");
 
@@ -15,7 +17,5 @@
 
 
 
-    $(document).ready(function () {
-        $("#header-div").load("header.html", loadContent);
-    });
+    $(document).ready(documentInit);
 })();
