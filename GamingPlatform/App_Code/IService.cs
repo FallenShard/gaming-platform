@@ -86,11 +86,9 @@ public interface IService
     string CreateWallPost(WallPost wallPost);
 
     [OperationContract]
-    [WebInvoke(Method = "POST",
-               ResponseFormat = WebMessageFormat.Json,
-               RequestFormat = WebMessageFormat.Json,
-               BodyStyle = WebMessageBodyStyle.Bare)]
-    string RemoveWallPost(WallPost wallPost);
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string RemoveWallPost(string writer, string timestamp, string recipient);
 
     [OperationContract]
     [WebInvoke(Method = "GET",
@@ -128,11 +126,6 @@ public interface IService
     [WebInvoke(Method = "GET",
                 ResponseFormat = WebMessageFormat.Json)]
     string addNewGame(string title, string description, string genre, string mode, string publisher, string platforms, string releaseDate, string thumbnail, string logo, string images, string review, string website, string additionalInfo);
-
-    [OperationContract]
-    [WebInvoke(Method = "GET",
-                ResponseFormat = WebMessageFormat.Json)]
-    string addNewWallPost(string content, string timestamp);
 
     [OperationContract]
     [WebInvoke(Method = "GET",

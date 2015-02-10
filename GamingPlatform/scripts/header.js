@@ -110,7 +110,7 @@
 
         onUserDataSuccess: function (userData) {
             if (userData === "guest") {
-                alert("Authentication failed. Please try again.");
+
             }
             else {
                 model.userData = JSON.parse(userData);
@@ -203,6 +203,11 @@
                 $("#welcome-span").addClass("admin-color");
             else if (model.userData.status === "Contributor")
                 $("#welcome-span").addClass("contributor-color");
+        },
+
+        setupGuestNavBar: function () {
+            this.$guestTools.show();
+            this.$userTools.hide();
         },
 
         validateSignUpInput: function () {

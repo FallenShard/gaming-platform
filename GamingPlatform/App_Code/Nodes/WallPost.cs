@@ -10,7 +10,9 @@ namespace Nodes
     /// </summary>
     public class WallPost
     {
-        public String content { get; set; }
-        public String timestamp { get; set; }
+        public string content { get; set; }
+        public string timestamp { get; set; }
+        public string writer { get; set; }
+        public string recipient { get; set; }
     } 
 }

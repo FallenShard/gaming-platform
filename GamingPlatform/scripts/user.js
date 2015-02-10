@@ -729,20 +729,6 @@
         var noWallPostsHtml = "<h3 id='no-message-h3' class='italic'>No messages have been posted yet.</h3>";
 
         function publicInit() {
-            $.ajax({
-                type: "GET",
-                url: "Service.svc/GetWallPosts",
-                data: { username: openedUser.username },
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                processData: true,
-                success: function (receivedData) {
-                    //onWallPostsSuccess(receivedData);
-                },
-                error: function (result) {
-                    console.log("Error performing ajax " + result);
-                }
-            });
 
             $("#submit-wall-post-btn").click(function () {
                 var content = $("#wall-post-input").val();
@@ -752,18 +738,64 @@
                     return;
 
                 var now = new Date();
-                var post = buildPostView({content: content, timestamp: now.getTime()}, activeUser);
 
+                var postData = {};
+                postData.content = content;
+                postData.timestamp = now.getTime();
+                postData.writer = activeUser.username;
+                postData.recipient = openedUser.username;
+
+                createWallPost(postData);
+                
+                var post = buildPostView(postData, activeUser);
+                $(post).hide();
                 $(post).insertAfter("#input-wall-post-div");
+                $(post).show('slow');
 
                 $("#wall-post-input").val("");
+            });
+
+            requestWallPosts();
+            requestFriendNames(); // For writing-on-wall permissions
+        }
+
+        function createWallPost(post) {
+            $.ajax({
+                type: "POST",
+                url: "Service.svc/CreateWallPost",
+                data: JSON.stringify(post),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    console.log(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+        }
+
+        function requestWallPosts() {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/GetWallPosts",
+                data: { username: openedUser.username },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    onWallPostsSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
             });
         }
 
         function onWallPostsSuccess(receivedData) {
             var $wall = $("#wall");
             var input = $("#input-wall-post-div").detach();
-            var $toPrepend = null;
 
             if (receivedData.length > 0) {
                 $("#tab-wall-posts").attr("value", receivedData.length);
@@ -772,6 +804,8 @@
 
                 noOfwallPosts = receivedData.length;
             }
+
+            var documentFragment = $(document.createDocumentFragment());
 
             for (var i = 0; i < receivedData.length; i++) {
                 try {
@@ -783,17 +817,19 @@
                 }
 
                 var postView = buildPostView(item.wallPost, item.writer);
+                
 
-                if (i === 0)
-                    $toPrepend = $(postView);
-
-                $wall.append(postView);
+                documentFragment.append(postView);
             }
 
-            if ($toPrepend !== null)
-                $toPrepend.prepend(input);
+            input.appendTo($wall);
 
-            requestFriendNames();
+            if (noOfwallPosts > 0) {
+                $wall.append(documentFragment);
+            }
+            else {
+                $wall.append(noWallPostsHtml);
+            }
         }
 
         function requestFriendNames() {
@@ -815,7 +851,21 @@
 
         function onFriendNamesSuccess(receivedData) {
             console.log(receivedData);
-            if (!activeUser || ((receivedData.indexOf(activeUser.username) === -1) && (!activeUser.status === "Admin")))
+            var hasInput = false;
+
+            if (activeUser)
+            {
+                if (activeUser.username === openedUser.username)
+                    hasInput = true;
+
+                if (receivedData.indexOf(activeUser.username) !== -1)
+                    hasInput = true;
+
+                if (activeUser.status === "Admin")
+                    hasInput = true;
+            }
+
+            if (!hasInput)
                 $("#input-wall-post-div").remove();
         }
 
@@ -847,9 +897,9 @@
                 }
                 else {
                     if (activeUser.username === openedUser.username)
-                        $(userDiv).html("<h5>" + user.username + " has posted on your wall." + "</h5>");
+                        $(userDiv).html("<h5><a href='user.html?username=" + user.username + "'>" + user.username + "</a>" + " has posted on your wall." + "</h5>");
                     else
-                        $(userDiv).html("<h5>" + user.username + " has posted on " + openedUser.username + "'s wall." + "</h5>");
+                        $(userDiv).html("<h5><a href='user.html?username=" + user.username + "'>" + user.username + "</a>" + " has posted on " + openedUser.username + "'s wall." + "</h5>");
                 }
             }
             else
@@ -859,14 +909,36 @@
             $(messageDiv).attr("class", "col-xs-12");
             $(messageDiv).html("<p class=top-margin-15>" + post.content + "</p>");
 
+
+            var removeBtnDiv = document.createElement("div");
+            $(removeBtnDiv).attr("class", "col-xs-2");
+
+            if (hasRemovalPrivileges(user.username))
+            {
+                var removeButton = document.createElement("button");
+                var $removeButton = $(removeButton);
+                $removeButton.attr("class", "btn btn-xs btn-danger");
+                $removeButton.html("Remove");
+                $removeButton.attr("type", "button");
+                $removeButton.click(function () {
+                    removeWallPost(user.username, post.timestamp);
+
+                    $(rowDiv).hide('fast', function () {
+                        $(rowDiv).remove();
+                    });
+                });
+                $(removeBtnDiv).append(removeButton);
+            }
+
             var timestampDiv = document.createElement("div");
-            $(timestampDiv).attr("class", "col-xs-12");
-            var date = new Date(post.timestamp);
+            $(timestampDiv).attr("class", "col-xs-10");
+            var date = new Date(parseInt(post.timestamp));
             $(timestampDiv).html("<span class='pull-right italic'>Posted on " + date.toLocaleString() + "</span");
 
             $(wellDiv).append(imgDiv);
             $(wellDiv).append(userDiv);
             $(wellDiv).append(messageDiv);
+            $(wellDiv).append(removeBtnDiv);
             $(wellDiv).append(timestampDiv);
 
             $(colDiv).html(wellDiv);
@@ -874,6 +946,39 @@
             $(rowDiv).html(colDiv);
 
             return rowDiv;
+        }
+
+        function hasRemovalPrivileges(writerUsername) {
+            var hasPrivileges = false;
+            if (activeUser) {
+                if (activeUser.username === openedUser.username)
+                    hasPrivileges = true;
+
+                if (activeUser.status === "Admin")
+                    hasPrivileges = true;
+
+                if (activeUser.username === writerUsername)
+                    hasPrivileges = true;
+            }
+
+            return hasPrivileges;
+        }
+
+        function removeWallPost(writer, timestamp) {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/RemoveWallPost",
+                data: { writer: writer, timestamp: timestamp, recipient: openedUser.username },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    console.log("Successfully deleted post!");
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
         }
 
         return {

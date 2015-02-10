@@ -277,27 +277,46 @@ public class Service : IService
         GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
         client.Connect();
 
-        //var newFriend = client.Cypher
-        //    .Match("(user1:User)", "(user2:User)")
-        //    .Where((User user1) => user1.username == username1)
-        //    .AndWhere((User user2) => user2.username == username2)
-        //    .CreateUnique("user1-[:IS_FRIENDS_WITH]-user2")
-        //    .Return(user2 => user2.As<User>())
-        //    .Results.First();
+        IDictionary<string, object> qParams = new Dictionary<string, object>();
+        qParams.Add("wrname", wallpost.writer);
+        qParams.Add("recname", wallpost.recipient);
+        qParams.Add("ts", wallpost.timestamp);
+        qParams.Add("con", wallpost.content);
 
+        var query = new CypherQuery("MATCH (writer:User), (rec:User)" +
+            "WHERE (writer.username = {wrname}) AND (rec.username = {recname})" +
+            "CREATE (wp:WallPost {timestamp: {ts}, content: {con}}), (writer)-[:POSTED]->(wp), (rec)-[:HAS]->(wp)", qParams, CypherResultMode.Projection);
+        ((IRawGraphClient)client).ExecuteCypher(query);
+
+        // CURRENT VERSION OF C# CLIENT DOES NOT SUPPORT CHAIN CREATION!!!!!!!!!!!!!! --Bart
         //client.Cypher
-        //    .Match("(user1:User)-[r:REQUEST_FRIEND]-(user2:User)")
-        //    .Where((User user1) => user1.username == username1)
-        //    .AndWhere((User user2) => user2.username == username2)
-        //    .Delete("r")
+        //    .Match("(writer:User)", "(recipient:User)")
+        //    .Where((User writer) => writer.username == wallpost.writer)
+        //    .AndWhere((User recipient) => recipient.username == wallpost.recipient)
+        //    .Create("(wp:WallPost {timestamp:" + wallpost.timestamp + ", content:" + wallpost.content + "})," +
+        //"(writer)-[:POSTED]->(wp), (recipient)-[:HAS]->(wp)")
         //    .ExecuteWithoutResults();
 
-        return "stub";
+        return "success";
     }
 
-    public string RemoveWallPost(WallPost wallPost)
+    public string RemoveWallPost(string writer, string timestamp, string recipient)
     {
-        return "stub";
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(writ:User)-[r1:POSTED]->(wp:WallPost)", "(rec:User)-[r2:HAS]->(wp:WallPost)")
+            .Where("wp.timestamp = {param}")
+            .WithParam("param", timestamp)
+            .AndWhere("writ.username = {wruser}")
+            .WithParam("wruser", writer)
+            .AndWhere("rec.username = {recuser}")
+            .WithParam("recuser", recipient)
+            .Delete("r1, r2, wp")
+            .ExecuteWithoutResults();
+
+        return "success";
     }
 
     public string[] GetWallPosts(string username)
