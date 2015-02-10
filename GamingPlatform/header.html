@@ -1,13 +1,14 @@
 ﻿<nav class="navbar navbar-default navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand logo-style" href="index.html">GRID</a>
+            <a class="navbar-brand logo-style glow-style" href="index.html">GRID</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <div class="navbar-right" style="padding-right: 15px;">
                 <button type="button" data-toggle="modal" href="#log-in-modal" class="guest-tools btn btn-primary navbar-btn">Log in</button>
                 <button type="button" data-toggle="modal" href="#sign-up-modal" class="guest-tools btn btn-success navbar-btn">Sign Up</button>
-                <span id="welcome-span" class="user-tools">Welcome, User</span>
+                <span class="user-tools">Welcome, <span id="welcome-span">User</span>!</span>
+                <img id="navbar-img" class="user-tools">
                 <button id="go-to-profile-button" type="button" class="user-tools btn btn-primary navbar-btn">Go to Profile</button>
                 <button id="log-out-button" type="button" class="user-tools btn btn-primary navbar-btn">Log out</button>
             </div>
@@ -34,7 +35,7 @@
 
 
 <div class="modal fade" id="log-in-modal">
-    <div class="modal-dialog bs-example-modal-sm">
+    <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>

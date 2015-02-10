@@ -1,5 +1,5 @@
 // Users
-CREATE (FallenShard:User 
+CREATE UNIQUE (FallenShard:User 
         { username: "FallenShard",
           password: "FallenShard",
           email: "nemanjabartolovic@yahoo.com",
@@ -13,7 +13,7 @@ CREATE (FallenShard:User
           sessionId: ""
         })
         
-CREATE (Mefisto:User 
+CREATE UNIQUE (Mefisto:User 
         { username: "Mefisto",
           password: "Mefisto",
           email: "stefan.stojanovic@elfak.rs",
@@ -27,7 +27,7 @@ CREATE (Mefisto:User
           sessionId: ""
         })
 
-CREATE (admin:User 
+CREATE UNIQUE (admin:User 
         { username: "admin",
           password: "admin",
           email: "admin@grid.com",
@@ -41,7 +41,7 @@ CREATE (admin:User
           sessionId: ""
         })
 
-CREATE (Johnny87:User 
+CREATE UNIQUE (Johnny87:User 
         { username: "Johnny87",
           password: "Johnny87",
           email: "johnny.smith87@gmail.com",
@@ -55,7 +55,7 @@ CREATE (Johnny87:User
           sessionId: ""
         })
         
-CREATE (Marinijum:User 
+CREATE UNIQUE (Marinijum:User 
         { username: "Marinijum",
           password: "Marinijum",
           email: "marina92@yahoo.com",
@@ -63,13 +63,13 @@ CREATE (Marinijum:User
           lastName: "Stevanovic",
           birthDate: "723337200000",
           location: "Middle of nowhere",
-          gender: "M",
+          gender: "F",
           avatarImage: "avatar4.jpg",
           status: "Member",
           sessionId: ""
         })
         
-CREATE (Masterooo:User 
+CREATE UNIQUE (Masterooo:User 
         { username: "Masterooo",
           password: "Masterooo",
           email: "masterooo95@yahoo.com",
@@ -83,7 +83,7 @@ CREATE (Masterooo:User
           sessionId: ""
         })
 
-CREATE (GandalfTheGrey:User 
+CREATE UNIQUE (GandalfTheGrey:User 
         { username: "GandalfTheGrey",
           password: "GandalfTheGrey",
           email: "bryantheslayer91@yahoo.com",
@@ -96,3 +96,19 @@ CREATE (GandalfTheGrey:User
           status: "Member",
           sessionId: ""
         })
+        
+CREATE UNIQUE(FizzFizz:User
+        { username: "FizzFizz",
+          password: "FizzFizz",
+          email: "fizz@gmail.com",
+          firstName: "Jacqueline",
+          lastName: "La Rue",
+          birthDate: "660956400000",
+          location: "Narnia",
+          gender: "F",
+          avatarImage: "avatar2.jpg",
+          status: "Member",
+          sessionId: ""
+        })
+        
+        

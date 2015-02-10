@@ -25,10 +25,6 @@ public interface IService
                 ResponseFormat = WebMessageFormat.Json)]
     string GetUserBySessionId(string sessionId);
 
-    #endregion
-
-    #region Data retrieval
-
     [OperationContract]
     [WebInvoke(Method = "GET",
                ResponseFormat = WebMessageFormat.Json)]
@@ -48,9 +44,64 @@ public interface IService
                ResponseFormat = WebMessageFormat.Json)]
     string CreateFriendRequest(string sourceUser, string targetUser);
 
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string RemoveFriendRequest(string username1, string username2);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string[] GetFriendRequests(string username);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string CreateFriendship(string username1, string username2);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string RemoveFriendship(string username1, string username2);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string[] GetFriends(string username);
+
     #endregion
 
-    #region Data editing
+    #region WallPosts
+
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string CreateWallPost(WallPost wallPost, string creator, string recipient);
+
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string RemoveWallPost(WallPost wallPost, string creator, string recipient);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string[] GetWallPosts(string username);
+
+    #endregion
+
+    #region User Operations
+
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string AddNewUser(User newUser);
 
     [OperationContract]
     [WebInvoke(Method = "POST",
@@ -62,13 +113,6 @@ public interface IService
     #endregion
 
     #region Data adding
-
-    [OperationContract]
-    [WebInvoke(Method = "POST",
-               ResponseFormat = WebMessageFormat.Json,
-               RequestFormat = WebMessageFormat.Json,
-               BodyStyle = WebMessageBodyStyle.Bare)]
-    string AddNewUser(User newUser);
 
     [OperationContract]
     [WebInvoke(Method = "GET",

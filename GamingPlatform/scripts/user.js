@@ -69,10 +69,14 @@
 
         // At this point, model is initiated fully, so init the modules
         userPanel.init();
+        friendRequests.init();
+        friendList.init();
 
         if (activeUser !== null) {
             if (activeUser.username === openedUser.username || activeUser.status == "Admin") {
                 userPanel.showEditButton();
+                $("#tab-wall").removeClass("hide");
+                $("#tab-friend-requests").removeClass("hide");
             }
 
             if (activeUser.username !== openedUser.username) {
@@ -139,14 +143,15 @@
             onResolveFriendshipSuccess: function (receivedData) {
                 console.log(receivedData);
                 if (receivedData === "friends") {
-                    $("#is-friends-div").toggleClass("hide");
+                    $("#is-friends-div").removeClass("hide");
+                    $("#tab-wall").removeClass("hide");
                 }
                 else if (receivedData === "requestSent") {
                     $("#add-friend-button").button('loading');
-                    $("#add-friend-button").toggleClass("hide");
+                    $("#add-friend-button").removeClass("hide");
                 }
                 else {
-                    $("#add-friend-button").toggleClass("hide");
+                    $("#add-friend-button").removeClass("hide");
                 }
             },
 
@@ -347,6 +352,373 @@
             setupAddButton: publicSetupAddButton
         }
     }());
+
+    var friendRequests = (function () {
+
+        function publicInit() {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/GetFriendRequests",
+                data: { username: openedUser.username },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    onFriendRequestSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+        }
+
+        function onFriendRequestSuccess(receivedData) {
+            var $fReqs = $("#friend-requests");
+            
+            if (receivedData.length > 0)
+            {
+                $("#tab-friend-requests").attr("value", receivedData.length);
+                $("#tab-friend-requests").html("Friend Requests (" + receivedData.length + ")");
+                $("#tab-friend-requests").addClass("glow-style");
+
+                $fReqs.empty();
+            }
+            
+
+            for (var i = 0; i < receivedData.length; i++)
+            {
+                try {
+                    var item = JSON.parse(receivedData[i]);
+                }
+                catch (exception) {
+                    console.log("Error parsing JSON!");
+                    continue;
+                }
+
+                var fReqView = buildFriendRequestView(item);
+
+                $fReqs.append(fReqView);
+            }
+            console.log(receivedData);
+        }
+
+        function buildFriendRequestView(friend) {
+            var rowContainer = document.createElement("div");
+            $(rowContainer).attr("value", friend.username);
+            $(rowContainer).attr("class", "row");
+
+            var positioner = document.createElement("div");
+            $(positioner).attr("class", "col-xs-offset-1 col-xs-8 col-xs-offset-3");
+
+            var well = document.createElement("div");
+            $(well).attr("class", "row well custom-well");
+
+            var rightPart = document.createElement("div");
+            var $rightPart = $(rightPart);
+            $rightPart.attr("class", "col-xs-9");
+            $rightPart.html("<h4 class='theme-color'>Pending Friend Request - " + friend.username + "</h4>");
+            $rightPart.append("<h5><a href='/user.html?username=" + friend.username + "'>" + friend.firstName
+                + " " + friend.lastName + "</a> would like to be friends with you.</h5>");
+            
+            var pullRightDiv = document.createElement("div");
+            $(pullRightDiv).attr("class", "pull-right");
+
+            var acceptButton = document.createElement("button");
+            var $acceptButton = $(acceptButton);
+            $acceptButton.attr("class", "btn btn-success");
+            $acceptButton.html("Accept");
+            $acceptButton.attr("type", "button");
+            $acceptButton.attr("value", friend.username);
+            $acceptButton.click(function () {
+                createFriendship(openedUser.username, $(this).val());
+
+                $(rowContainer).slideUp('fast', function () {
+                    $(rowContainer).remove();
+                });
+            });
+
+            var rejectButton = document.createElement("button");
+            var $rejectButton = $(rejectButton);
+            $rejectButton.attr("class", "btn btn-danger");
+            $rejectButton.html("Reject");
+            $rejectButton.attr("type", "button");
+            $rejectButton.attr("value", friend.username);
+            $rejectButton.click(function () {
+                removeFriendRequest(openedUser.username, $(this).val());
+                
+                $(rowContainer).slideUp('fast', function () {
+                    $(rowContainer).remove();
+                });
+            });
+
+            $(pullRightDiv).append(acceptButton);
+            $(pullRightDiv).append(rejectButton);
+            $rightPart.append(pullRightDiv);
+
+            var leftPart = document.createElement("div");
+            $(leftPart).attr("class", "col-xs-3");
+            
+            var image = document.createElement("img");
+            $(image).attr("src", "img/avatars/" + friend.avatarImage);
+            $(image).attr("class", "img-responsive");
+            $(image).attr("alt", "Profile picture");
+            $(image).error(function () {
+                $(this).attr('src', "http://placehold.it/300x300");
+            });
+
+            $(leftPart).append(image);
+
+            $(well).html(leftPart);
+            $(well).append(rightPart);
+
+            $(positioner).append(well);
+            $(rowContainer).append(positioner);
+
+            return rowContainer;
+        }
+
+        function createFriendship(username1, username2) {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/CreateFriendship",
+                data: { username1: username1, username2: username2 },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    onCreateFriendshipSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+
+            adjustTabGlow();
+        }
+
+        function removeFriendRequest(username1, username2) {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/RemoveFriendRequest",
+                data: { username1: username1, username2: username2 },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    console.log("Successfully removed request");
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+
+            adjustTabGlow();
+        }
+
+        function onCreateFriendshipSuccess(receivedData) {
+            console.log("ON CREATE SUCCESS: " + receivedData);
+            try {
+                var friend = JSON.parse(receivedData);
+                friendList.addFriend(friend);
+            }
+            catch(exception) {
+                console.log("Could not add friend after friendship creation!");
+            }
+        }
+
+        function adjustTabGlow() {
+            var value = $("#tab-friend-requests").attr("value");
+            console.log(value);
+            value--;
+
+            if (value > 0)
+            {
+                $("#tab-friend-requests").attr("value", value);
+                $("#tab-friend-requests").html("Friend Requests (" + value + ")");
+            }
+            else
+            {
+                $("#tab-friend-requests").html("Friend Requests");
+                $("#tab-friend-requests").removeClass("glow-style");
+                $("#friend-requests").html("<h3 class='italic'>No pending friend requests to display.</h3>");
+            }
+        }
+
+        return {
+            init: publicInit
+        }
+    }());
+
+    var friendList = (function () {
+
+        var numberOfFriends = 0;
+
+        function publicInit() {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/GetFriends",
+                data: { username: openedUser.username },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    onFriendsSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+        }
+
+        function publicAddFriend(friend) {
+            numberOfFriends++;
+
+            $("#tab-friends").attr("value", numberOfFriends);
+            $("#tab-friends").html("Friends (" + numberOfFriends + ")");
+
+            if (numberOfFriends - 1 === 0) {
+                var friendRow = document.createElement("div");
+                $(friendRow).attr("class", "row");
+                $(friendRow).attr("id", "friend-row");
+
+                var friendView = buildFriendView(friend);
+                $(friendRow).append(friendView);
+
+                $("#friends").empty();
+                $("#friends").html(friendRow);
+            }
+            else {
+                $("#friend-row").append(buildFriendView(friend));
+            }
+        }
+
+        function onFriendsSuccess(receivedData) {
+            var $friends = $("#friends");
+
+            if (receivedData.length > 0)
+            {
+                $("#tab-friends").attr("value", receivedData.length);
+                $("#tab-friends").html("Friends (" + receivedData.length + ")");
+                $friends.empty();
+                var friendRow = document.createElement("div");
+                $(friendRow).attr("class", "row");
+                $(friendRow).attr("id", "friend-row");
+                $friends.html(friendRow);
+
+                numberOfFriends = receivedData.length;
+            }
+
+            var friendRow = null;
+            for (var i = 0; i < receivedData.length; i++) {
+                try {
+                    var item = JSON.parse(receivedData[i]);
+                }
+                catch (exception) {
+                    console.log("Error parsing JSON!");
+                    continue;
+                }
+
+                var friendView = buildFriendView(item);
+
+                $("#friend-row").append(friendView);
+            }
+
+            if (!activeUser || !(activeUser.username === openedUser.username || activeUser.status == "Admin"))
+                $(".remove-friend-button").remove();
+            console.log(receivedData);
+        }
+
+        function buildFriendView(friend) {
+            var positioner = document.createElement("div");
+            $(positioner).attr("class", "col-xs-4");
+            $(positioner).attr("style", "padding: 0 20px;");
+
+            var well = document.createElement("div");
+            $(well).attr("class", "row well custom-well");
+            $(well).attr("style", "height: 150px;");
+
+            var leftPart = document.createElement("div");
+            $(leftPart).attr("class", "col-xs-5");
+
+            var image = document.createElement("img");
+            $(image).attr("src", "img/avatars/" + friend.avatarImage);
+            $(image).attr("class", "img-responsive");
+            $(image).attr("alt", "Profile picture");
+            $(image).error(function () {
+                $(this).attr('src', "http://placehold.it/300x300");
+            });
+
+            var removeButton = document.createElement("button");
+            var $removeButton = $(removeButton);
+            $removeButton.attr("class", "btn btn-xs btn-danger remove-friend-button margin-top-15");
+            $removeButton.html("Remove");
+            $removeButton.attr("type", "button");
+            $removeButton.attr("value", friend.username);
+            $removeButton.click(function () {
+                removeFriend(openedUser.username, $(this).val());
+
+                $(positioner).hide('fast', function () {
+                    $(positioner).remove();
+                });
+            });
+
+            $(leftPart).append(image);
+            $(leftPart).append(removeButton);
+
+            var rightPart = document.createElement("div");
+            var $rightPart = $(rightPart);
+            $rightPart.attr("class", "col-xs-7");
+            $rightPart.html("<h4><a class='theme-color' href='/user.html?username=" + friend.username + "'>" + friend.username + "</a></h4>");
+            $rightPart.append("<h5>" + friend.firstName + " " + friend.lastName + "</h5>");
+
+            $(well).html(leftPart);
+            $(well).append(rightPart);
+
+            $(positioner).append(well);
+
+            return positioner;
+        }
+
+        function removeFriend(username1, username2) {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/RemoveFriendship",
+                data: { username1: username1, username2: username2 },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    onRemoveFriendSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+        }
+
+        function onRemoveFriendSuccess(receivedData) {
+            numberOfFriends--;
+            $("#tab-friends").attr("value", numberOfFriends);
+            
+            if (numberOfFriends === 0)
+            {
+                $("#tab-friends").html("Friends");
+                $("#friends").html("<h3 class='italic'>You haven't made any friends yet.</h3>");
+            }
+            else
+            {
+                $("#tab-friends").html("Friends (" + numberOfFriends + ")");
+            }
+        }
+
+        return {
+            init: publicInit,
+            addFriend: publicAddFriend
+        }
+    }());
+
+
+
 
     $(document).ready(documentInit);
 })();

@@ -181,9 +181,9 @@
             $("#log-in-alert").hide();
             $("#sign-up-alert").hide();
 
-            var glow = $('.logo-style');
+            //var glow = ;
             setInterval(function () {
-                glow.toggleClass('glow');
+                $('.glow-style').toggleClass('glow');
             }, 1000);
         },
 
@@ -197,7 +197,12 @@
         setupLoggedInNavbar: function () {
             this.$guestTools.hide();
             this.$userTools.show();
-            $("#welcome-span").html("Welcome, " + model.userData.username + "!");
+            $("#welcome-span").html(model.userData.username);
+            $("#navbar-img").attr("src", "img/avatars/" + model.userData.avatarImage);
+            if (model.userData.status === "Admin")
+                $("#welcome-span").addClass("admin-color");
+            else if (model.userData.status === "Contributor")
+                $("#welcome-span").addClass("contributor-color");
         },
 
         validateSignUpInput: function () {

@@ -19,6 +19,11 @@ using Relationships;
 [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
 public class Service : IService
 {
+    private string toJson(object obj)
+    {
+        return JsonConvert.SerializeObject(obj);
+    }
+
     #region User authentication
 
     public string GetUserSessionToken(string username, string password)
@@ -68,17 +73,6 @@ public class Service : IService
         return data;
     }
 
-    private static string CreateSHAHash(string plaintext)
-    {
-        SHA256Managed HashTool = new SHA256Managed();
-        Byte[] PhraseAsByte = System.Text.Encoding.UTF8.GetBytes(string.Concat(plaintext));
-        Byte[] EncryptedBytes = HashTool.ComputeHash(PhraseAsByte);
-        HashTool.Clear();
-        return Convert.ToBase64String(EncryptedBytes);
-    }
-
-    #endregion
-
     public string GetUserByUsername(string username)
     {
         string data = "failed";
@@ -97,11 +91,16 @@ public class Service : IService
         return data;
     }
 
-
-    private string toJson(object obj)
+    private static string CreateSHAHash(string plaintext)
     {
-        return JsonConvert.SerializeObject(obj);
+        SHA256Managed HashTool = new SHA256Managed();
+        Byte[] PhraseAsByte = System.Text.Encoding.UTF8.GetBytes(string.Concat(plaintext));
+        Byte[] EncryptedBytes = HashTool.ComputeHash(PhraseAsByte);
+        HashTool.Clear();
+        return Convert.ToBase64String(EncryptedBytes);
     }
+
+    #endregion
 
     #region Friendship
 
@@ -113,7 +112,7 @@ public class Service : IService
         client.Connect();
 
         var isFriends = client.Cypher
-            .Match("(user:User)-[r:IS_FRIENDS_WITH]->(friend:User)")
+            .Match("(user:User)-[r:IS_FRIENDS_WITH]-(friend:User)")
             .Where((User user) => user.username == viewer)
             .AndWhere((User friend) => friend.username == openedUser)
             .Return(() => Return.As<int>("count(r)"))
@@ -150,29 +149,165 @@ public class Service : IService
         return "Friend request sent";
     }
 
-    #endregion
-
-    #region Data editing
-
-    public string EditUser(User editedUser)
+    public string RemoveFriendRequest(string username1, string username2)
     {
         GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
         client.Connect();
 
         client.Cypher
-            .Match("(user:User)")
-            .Where((User user) => user.username == editedUser.username)
-            .Set("user = {editedUser}")
-            .WithParam("editedUser", editedUser)
+            .Match("(user1:User)<-[r:REQUEST_FRIEND]-(user2:User)")
+            .Where((User user1) => user1.username == username1)
+            .AndWhere((User user2) => user2.username == username2)
+            .Delete("r")
             .ExecuteWithoutResults();
 
-        return toJson(editedUser);
+        return "success";
+    }
+
+    public string[] GetFriendRequests(string username)
+    {
+       IList<string> friendRequests = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var senders = client.Cypher
+            .Match("(user:User)<-[r:REQUEST_FRIEND]-(friend:User)")
+            .Where((User user) => user.username == username)
+            .Return(friend => friend.As<User>())
+            .Results;
+
+        if (senders.Count() > 0)
+        {
+            foreach (User user in senders)
+            {
+                friendRequests.Add(toJson(user));
+            }
+        }
+
+        return friendRequests.ToArray();
+    }
+
+    public string CreateFriendship(string username1, string username2)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var newFriend = client.Cypher
+            .Match("(user1:User)", "(user2:User)")
+            .Where((User user1) => user1.username == username1)
+            .AndWhere((User user2) => user2.username == username2)
+            .CreateUnique("user1-[:IS_FRIENDS_WITH]-user2")
+            .Return(user2 => user2.As<User>())
+            .Results.First();
+
+        client.Cypher
+            .Match("(user1:User)-[r:REQUEST_FRIEND]-(user2:User)")
+            .Where((User user1) => user1.username == username1)
+            .AndWhere((User user2) => user2.username == username2)
+            .Delete("r")
+            .ExecuteWithoutResults();
+
+        return toJson(newFriend);
+    }
+
+    public string RemoveFriendship(string username1, string username2)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(user1:User)-[r:IS_FRIENDS_WITH]-(user2:User)")
+            .Where((User user1) => user1.username == username1)
+            .AndWhere((User user2) => user2.username == username2)
+            .Delete("r")
+            .ExecuteWithoutResults();
+
+        return "success";
+    }
+
+    public string[] GetFriends(string username)
+    {
+        IList<string> friends = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var friendNodes = client.Cypher
+            .Match("(user:User)-[r:IS_FRIENDS_WITH]-(friend:User)")
+            .Where((User user) => user.username == username)
+            .Return(friend => friend.As<User>())
+            .Results;
+
+        foreach (User user in friendNodes)
+        {
+            friends.Add(toJson(user));
+        }
+
+        return friends.ToArray();
     }
 
     #endregion
 
+    #region WallPosts
 
-    #region Data adding
+    public string CreateWallPost(WallPost wallpost, string creator, string wallOwner)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        //var newFriend = client.Cypher
+        //    .Match("(user1:User)", "(user2:User)")
+        //    .Where((User user1) => user1.username == username1)
+        //    .AndWhere((User user2) => user2.username == username2)
+        //    .CreateUnique("user1-[:IS_FRIENDS_WITH]-user2")
+        //    .Return(user2 => user2.As<User>())
+        //    .Results.First();
+
+        //client.Cypher
+        //    .Match("(user1:User)-[r:REQUEST_FRIEND]-(user2:User)")
+        //    .Where((User user1) => user1.username == username1)
+        //    .AndWhere((User user2) => user2.username == username2)
+        //    .Delete("r")
+        //    .ExecuteWithoutResults();
+
+        return "stub";
+    }
+
+    public string RemoveWallPost(WallPost wallPost, string creator, string recipient)
+    {
+        return "stub";
+    }
+
+    public string[] GetWallPosts(string username)
+    {
+        IList<string> wallPosts = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var wallPostNodes = client.Cypher
+            .OptionalMatch("(writer:User)-[:WRITES]->(wallPost:WallPost)")
+            .Match("(user:User)-[:HAS]->(wallPost:WallPost)")
+            .Where((User user) => user.username == username)
+            .Return((wallPost, writer) => new
+            {
+                wallPost = wallPost.As<WallPost>(),
+                writer = writer.As<User>()
+            })
+            .Results;
+
+        foreach (var wallPost in wallPostNodes)
+        {
+            wallPosts.Add(toJson(wallPost));
+        }
+
+        return wallPosts.ToArray();
+    }
+
+    #endregion
+
+    #region User Operations
 
     public string AddNewUser(User newUser)
     {
@@ -202,6 +337,28 @@ public class Service : IService
 
         return toJson(newUser);
     }
+
+    public string EditUser(User editedUser)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(user:User)")
+            .Where((User user) => user.username == editedUser.username)
+            .Set("user = {editedUser}")
+            .WithParam("editedUser", editedUser)
+            .ExecuteWithoutResults();
+
+        return toJson(editedUser);
+    }
+
+    #endregion
+
+
+    #region Data adding
+
+    
 
     public string AddNewDeveloper(string name, string location, string owner, string website)
     {

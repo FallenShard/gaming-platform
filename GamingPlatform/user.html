@@ -10,6 +10,7 @@
     <link href='http://fonts.googleapis.com/css?family=Roboto:700,400' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Michroma' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="css/custom.css">
+    <link rel="stylesheet" href="css/user.css" />
 
     <script src="scripts/jquery-2.1.3.min.js"></script>
     <script src="scripts/bootstrap.min.js"></script>
@@ -32,11 +33,11 @@
             <div class="col-xs-3">
                 <div class="well">
                     <ul class="nav nav-pills nav-stacked" id="user-tabs">
-                        <li class="active"><a href="#user-panel">User Panel</a></li>
-                        <li><a href="#profile">Games</a></li>
-                        <li><a href="#friends">Friends</a></li>
-                        <li><a href="#wall">Wall</a></li>
-                        <li><a href="#friend-requests">Friend Requests</a></li>
+                        <li class="active"><a id="tab-user-panel" href="#user-panel">User Panel</a></li>
+                        <li><a id="tab-profile" href="#profile">Games</a></li>
+                        <li><a id="tab-friends" href="#friends">Friends</a></li>
+                        <li><a id="tab-wall" class="hide" href="#wall">Wall</a></li>
+                        <li><a id="tab-friend-requests" class="hide" href="#friend-requests">Friend Requests</a></li>
                     </ul>
                 </div>
             </div>
@@ -46,15 +47,20 @@
                         <div class="row">
                             <div class="col-xs-4">
                                 <img id="avatar-img" class="img-responsive" alt="profile-pic" onerror="if (this.src != 'http://placehold.it/300x300') this.src = 'http://placehold.it/300x300';">
-                                <button id="open-edit-dlg-btn" type="button" class="btn btn-warning top-margin-15 hide" data-toggle="modal" data-target="#edit-user-modal">
-                                    Edit Profile
-                                </button>
-                                <button id="add-friend-button" type="button" data-loading-text="Friend Request Sent" class="btn btn-success top-margin-15 hide" autocomplete="off">
-                                    Send Friend Request
-                                </button>
+                                <p>
+                                    <button id="open-edit-dlg-btn" type="button" class="btn btn-warning top-margin-15 hide" data-toggle="modal" data-target="#edit-user-modal">
+                                        Edit Profile
+                                    </button>
+                                </p>
+                                <p>
+                                    <button id="add-friend-button" type="button" data-loading-text="Friend Request Sent" class="btn btn-success top-margin-15 hide" autocomplete="off">
+                                        Send Friend Request
+                                    </button>
+                                </p>
                                 <div id="is-friends-div" class="hide">
-                                    <label>Friends</label>
-                                    <span class="glyphicon glyphicon-ok glyph-class"></span>
+                                    <h4 class="theme-color-green">
+                                        Friends&nbsp;<span class="glyphicon glyphicon-ok glyph-class"></span>
+                                    </h4>
                                 </div>
                             </div>
                             <div class="col-xs-8">
@@ -128,14 +134,17 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="profile">Games</div>
-                    <div class="tab-pane fade" id="friends">Friends</div>
-                    <div class="tab-pane fade" id="wall">Wall</div>
-                    <div class="tab-pane fade" id="friend-requests">Friend Requests</div>
+                    <div class="tab-pane fade container-fluid" id="profile">Games</div>
+                    <div class="tab-pane fade container-fluid" id="friends">
+                        <h3 class="italic">You haven't made any friends yet.</h3>
+                    </div>
+                    <div class="tab-pane fade container-fluid" id="wall">Wall</div>
+                    <div class="tab-pane fade container-fluid" id="friend-requests">
+                        <h3 class="italic">No pending friend requests to display.</h3>
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <div id="edit-user-modal" class="modal fade">
@@ -217,7 +226,7 @@
                                 <input type="text" class="form-control" id="editAvatar" placeholder="It should be avatar1-10.jpg" />
                             </div>
                         </div>
-                        
+
                     </form>
                 </div>
                 <div class="modal-footer">

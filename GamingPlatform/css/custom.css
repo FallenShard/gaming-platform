@@ -11,17 +11,26 @@
 {
     font-size: 2em;
     font-family: 'Michroma', sans-serif;
+}
+
+.glow-style
+{
     -webkit-transition: text-shadow 1s linear;
     -moz-transition: text-shadow 1s linear;
-    -ms-transition: text-shadow 1s linear;
     -o-transition: text-shadow 1s linear;
     transition: text-shadow 1s linear;
 }
 
-.logo-style:hover,
-.logo-style.glow
+#navbar-img
 {
-    text-shadow: 0 0 10px #FFFF66;
+    width:35px;
+    height:35px;
+}
+
+.glow-style:hover,
+.glow-style.glow
+{
+    text-shadow: 0 0 15px #FFFF66;
 }
 
 .carousel-inner > .item > img
@@ -51,6 +60,11 @@
     color: #FFFF66;
 }
 
+.theme-color-green
+{
+    color: green;
+}
+
 .thin-separator-theme
 {
     margin: 10px auto;
@@ -70,4 +84,8 @@
 
 .hide {
     display: none;
+}
+
+.italic {
+    font-style: italic;
 }
