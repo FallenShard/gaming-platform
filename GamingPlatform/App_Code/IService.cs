@@ -69,6 +69,11 @@ public interface IService
                ResponseFormat = WebMessageFormat.Json)]
     string[] GetFriends(string username);
 
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string[] GetFriendNames(string username);
+
     #endregion
 
     #region WallPosts
@@ -78,14 +83,14 @@ public interface IService
                ResponseFormat = WebMessageFormat.Json,
                RequestFormat = WebMessageFormat.Json,
                BodyStyle = WebMessageBodyStyle.Bare)]
-    string CreateWallPost(WallPost wallPost, string creator, string recipient);
+    string CreateWallPost(WallPost wallPost);
 
     [OperationContract]
     [WebInvoke(Method = "POST",
                ResponseFormat = WebMessageFormat.Json,
                RequestFormat = WebMessageFormat.Json,
                BodyStyle = WebMessageBodyStyle.Bare)]
-    string RemoveWallPost(WallPost wallPost, string creator, string recipient);
+    string RemoveWallPost(WallPost wallPost);
 
     [OperationContract]
     [WebInvoke(Method = "GET",

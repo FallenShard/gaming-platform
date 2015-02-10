@@ -27,6 +27,9 @@
             headerBar.init();
         });
 
+        var date = new Date();
+        $("#date-span").html("Posted on " + date.toLocaleString());
+
         enableTabs();
 
         initModel();
@@ -71,6 +74,7 @@
         userPanel.init();
         friendRequests.init();
         friendList.init();
+        wall.init();
 
         if (activeUser !== null) {
             if (activeUser.username === openedUser.username || activeUser.status == "Admin") {
@@ -354,7 +358,6 @@
     }());
 
     var friendRequests = (function () {
-
         function publicInit() {
             $.ajax({
                 type: "GET",
@@ -590,6 +593,10 @@
             else {
                 $("#friend-row").append(buildFriendView(friend));
             }
+
+            if (!activeUser || !(activeUser.username === openedUser.username || activeUser.status == "Admin"))
+                $(".remove-friend-button").remove();
+            console.log(receivedData);
         }
 
         function onFriendsSuccess(receivedData) {
@@ -717,8 +724,162 @@
         }
     }());
 
+    var wall = (function () {
+        var noOfwallPosts = 0;
+        var noWallPostsHtml = "<h3 id='no-message-h3' class='italic'>No messages have been posted yet.</h3>";
 
+        function publicInit() {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/GetWallPosts",
+                data: { username: openedUser.username },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    //onWallPostsSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
 
+            $("#submit-wall-post-btn").click(function () {
+                var content = $("#wall-post-input").val();
+                content.trim();
+
+                if (content.length === 0)
+                    return;
+
+                var now = new Date();
+                var post = buildPostView({content: content, timestamp: now.getTime()}, activeUser);
+
+                $(post).insertAfter("#input-wall-post-div");
+
+                $("#wall-post-input").val("");
+            });
+        }
+
+        function onWallPostsSuccess(receivedData) {
+            var $wall = $("#wall");
+            var input = $("#input-wall-post-div").detach();
+            var $toPrepend = null;
+
+            if (receivedData.length > 0) {
+                $("#tab-wall-posts").attr("value", receivedData.length);
+                $("#tab-wall-posts").html("Wall Posts (" + receivedData.length + ")");
+                $wall.empty();
+
+                noOfwallPosts = receivedData.length;
+            }
+
+            for (var i = 0; i < receivedData.length; i++) {
+                try {
+                    var item = JSON.parse(receivedData[i]);
+                }
+                catch (exception) {
+                    console.log("Error parsing JSON!");
+                    continue;
+                }
+
+                var postView = buildPostView(item.wallPost, item.writer);
+
+                if (i === 0)
+                    $toPrepend = $(postView);
+
+                $wall.append(postView);
+            }
+
+            if ($toPrepend !== null)
+                $toPrepend.prepend(input);
+
+            requestFriendNames();
+        }
+
+        function requestFriendNames() {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/GetFriendNames",
+                data: { username: openedUser.username },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    onFriendNamesSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+        }
+
+        function onFriendNamesSuccess(receivedData) {
+            console.log(receivedData);
+            if (!activeUser || ((receivedData.indexOf(activeUser.username) === -1) && (!activeUser.status === "Admin")))
+                $("#input-wall-post-div").remove();
+        }
+
+        function buildPostView(post, user) {
+            var rowDiv = document.createElement("div");
+            $(rowDiv).attr("class", "row");
+
+            var colDiv = document.createElement("div");
+            $(colDiv).attr("class", "col-xs-offset-1 col-xs-8 col-xs-offset-3");
+            
+            var wellDiv = document.createElement("div");
+            $(wellDiv).attr("class", "row well custom-well");
+
+            var imgDiv = document.createElement("div");
+            $(imgDiv).attr("class", "col-xs-2 text-center");
+            $(imgDiv).html("<img src='img/avatars/" + user.avatarImage + "' class='img-responsive img-center'>");
+            
+            var userDiv = document.createElement("div");
+            $(userDiv).attr("class", "col-xs-10");
+
+            if (activeUser)
+            {
+                if (activeUser.username === user.username)
+                {
+                    if (activeUser.username === openedUser.username)
+                        $(userDiv).html("<h5>You have posted on your wall." + "</h5>");
+                    else
+                        $(userDiv).html("<h5>You have posted on " + openedUser.username +  "'s wall." + "</h5>");
+                }
+                else {
+                    if (activeUser.username === openedUser.username)
+                        $(userDiv).html("<h5>" + user.username + " has posted on your wall." + "</h5>");
+                    else
+                        $(userDiv).html("<h5>" + user.username + " has posted on " + openedUser.username + "'s wall." + "</h5>");
+                }
+            }
+            else
+                $(userDiv).html("<h5>" + user.username + " has posted on " + openedUser.username + "'s wall." + "</h5>");
+
+            var messageDiv = document.createElement("div");
+            $(messageDiv).attr("class", "col-xs-12");
+            $(messageDiv).html("<p class=top-margin-15>" + post.content + "</p>");
+
+            var timestampDiv = document.createElement("div");
+            $(timestampDiv).attr("class", "col-xs-12");
+            var date = new Date(post.timestamp);
+            $(timestampDiv).html("<span class='pull-right italic'>Posted on " + date.toLocaleString() + "</span");
+
+            $(wellDiv).append(imgDiv);
+            $(wellDiv).append(userDiv);
+            $(wellDiv).append(messageDiv);
+            $(wellDiv).append(timestampDiv);
+
+            $(colDiv).html(wellDiv);
+            
+            $(rowDiv).html(colDiv);
+
+            return rowDiv;
+        }
+
+        return {
+            init: publicInit
+        }
+    }());
 
     $(document).ready(documentInit);
 })();

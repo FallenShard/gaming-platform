@@ -247,11 +247,32 @@ public class Service : IService
         return friends.ToArray();
     }
 
+    public string[] GetFriendNames(string username)
+    {
+        IList<string> friendNames = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var friendNodes = client.Cypher
+            .Match("(user:User)-[r:IS_FRIENDS_WITH]-(friend:User)")
+            .Where((User user) => user.username == username)
+            .Return(friend => friend.As<User>())
+            .Results;
+
+        foreach (User user in friendNodes)
+        {
+            friendNames.Add(user.username);
+        }
+
+        return friendNames.ToArray();
+    }
+
     #endregion
 
     #region WallPosts
 
-    public string CreateWallPost(WallPost wallpost, string creator, string wallOwner)
+    public string CreateWallPost(WallPost wallpost)
     {
         GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
         client.Connect();
@@ -274,7 +295,7 @@ public class Service : IService
         return "stub";
     }
 
-    public string RemoveWallPost(WallPost wallPost, string creator, string recipient)
+    public string RemoveWallPost(WallPost wallPost)
     {
         return "stub";
     }
@@ -287,8 +308,7 @@ public class Service : IService
         client.Connect();
 
         var wallPostNodes = client.Cypher
-            .OptionalMatch("(writer:User)-[:WRITES]->(wallPost:WallPost)")
-            .Match("(user:User)-[:HAS]->(wallPost:WallPost)")
+            .Match("(user:User)-[:HAS]->(wallPost:WallPost)", "(writer:User)-[:POSTED]-(wallPost:WallPost)")
             .Where((User user) => user.username == username)
             .Return((wallPost, writer) => new
             {
