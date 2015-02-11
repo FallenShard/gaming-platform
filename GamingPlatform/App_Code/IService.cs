@@ -146,11 +146,6 @@ public interface IService
     [OperationContract]
     [WebInvoke(Method = "GET",
                 ResponseFormat = WebMessageFormat.Json)]
-    string addNewGame(string title, string description, string genre, string mode, string publisher, string platforms, string releaseDate, string thumbnail, string logo, string images, string review, string website, string additionalInfo);
-
-    [OperationContract]
-    [WebInvoke(Method = "GET",
-                ResponseFormat = WebMessageFormat.Json)]
     string addNewStore(string location, string address, string dateOpened);
 
     #endregion

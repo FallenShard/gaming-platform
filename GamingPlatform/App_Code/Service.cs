@@ -434,33 +434,27 @@ public class Service : IService
 
     public string AddNewGame(Game newGame)
     {
-        /*GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
         client.Connect();
 
         var results = client.Cypher
-            .Match("(user:User)")
-            .Where((User user) => user.username == newUser.username)
-            .Return(user => user.As<User>()).Results;
+            .Match("(game:Game)")
+            .Where((Game game) => game.title == newGame.title)
+            .Return(game => game.As<Game>()).Results;
 
-        // There's already a user with that username
+        // There's already a game with that title
         if (results.Count() > 0)
             return "failed";
 
         Random rnd = new Random();
         int avatarId = rnd.Next(1, 10);
 
-        newUser.avatarImage = "avatar" + avatarId + ".jpg";
-        newUser.status = "Member";
-        newUser.sessionId = CreateSHAHash(newUser.username + newUser.password + DateTime.Now.ToString("MM\\/dd\\/yyyy h\\:mm tt"));
-
         client.Cypher
-            .Create("(user:User {newUser})")
-            .WithParam("newUser", newUser)
+            .Create("(game:Game {newGame})")
+            .WithParam("newGame", newGame)
             .ExecuteWithoutResults();
 
-        return toJson(newUser);*/
-
-        return string.Empty;
+        return toJson(newGame);
     }
 
     #endregion

@@ -16,7 +16,9 @@
 
     var model = {
         loggedIn: false,
-        userData: {}
+        userData: {},
+        //Data for game
+        gameData: {}
     };
 
     var controller = {
@@ -52,6 +54,12 @@
                 if (event.keyCode == 13) {
                     $("#log-in-button").click();
                 }
+            });
+
+            //Adding new game - I made one on test web page
+            //Should add that button to the navbar...
+            $("#add-game-button").click(function () {
+                view.validateAddGameInput();
             });
         },
 
@@ -165,6 +173,42 @@
                     window.location.replace("index.html");
                 }, 1000);
             }
+        },
+
+        //Adding new game as object
+        requestAddGame: function (newGameData) {
+            $.ajax({
+                type: "POST",
+                url: "Service.svc/AddNewGame",
+                data: JSON.stringify(newGameData),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    controller.onAddGameSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing POST ajax " + result);
+                }
+            });
+        },
+
+        onAddGameSuccess: function (receivedData) {
+            if (receivedData === "failed")
+                alert("Add new game form contains the following errors: \n - Game with that title already exists");
+            else {
+                $("#add-game-alert").show('fast');
+
+                model.gameData = JSON.parse(receivedData);
+                
+                setTimeout(function () {
+                    $('#add-game-alert').modal('hide');
+                }, 500);
+                setTimeout(function () {
+                    //location.reload(true);
+                    window.location.replace("index.html");
+                }, 1000);
+            }
         }
     };
 
@@ -180,6 +224,7 @@
             $(".guest-tools").hide();
             $("#log-in-alert").hide();
             $("#sign-up-alert").hide();
+            $("#add-game-alert").hide();
 
             //var glow = ;
             setInterval(function () {
@@ -280,6 +325,54 @@
                     this.monthDays[1] = 29;
                 else
                     this.monthDays[1] = 28;
+            }
+        },
+
+        //Validating new game
+        validateAddGameInput: function () {
+            var errorMessage = "";
+
+            var newGameData = {};
+
+            newGameData.title = $("#titleInput").val();
+            newGameData.description = $("#descriptionInput").val();
+            newGameData.genre = $("#genreInput").val();
+            newGameData.mode = $("#modeInput").val();
+            newGameData.publisher = $("#publisherInput").val();
+            newGameData.platforms = $("#platformsInput").val().split(",");
+            newGameData.thumbnail = $("#thumbnailInput").val();
+            newGameData.images = $("#imagesInput").val().split(",");
+
+            if (this.validateAlphanumeric(newGameData.title))
+                errorMessage += "\n - Title must contain alphanumeric characters only";
+            if (newGameData.title.length > 30 || newGameData.title.length < 8)
+                errorMessage += "\n - Title must be 8-30 characters long";
+            if (newGameData.description.length < 50)
+                errorMessage += "\n - Description must be at least 50 characters long";
+
+            var year = parseInt($("#gameYearInput").val());
+            var month = parseInt($("#gameMonthInput").val());
+            var day = parseInt($("#gameDayInput").val());
+            var date = new Date();
+            date.setHours(0, 0, 0, 0);
+            this.dateValidator.init();
+
+            if (isNaN(year) || year < 0)
+                errorMessage += "\n - Year should be a positive number";
+            if (isNaN(month) || month < 1 || month > 12)
+                errorMessage += "\n - Invalid value for month";
+            else if (isNaN(day) || day < 1 || day > this.dateValidator.monthDays[month - 1])
+                errorMessage += "\n - Invalid value for day";
+
+            if (errorMessage === "") {
+                console.log("Success!");
+                date.setFullYear(year, month - 1, day);
+                newGameData.releaseDate = date.getTime();
+
+                controller.requestAddGame(newGameData);
+            }
+            else {
+                alert("Sign up form contains the following errors: " + errorMessage);
             }
         }
     };
