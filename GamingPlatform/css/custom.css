@@ -129,24 +129,18 @@ input[type="color"]:focus,
   outline: 0 none;
 }
 
-.form-control:select,
-textarea:select,
-input[type="text"]:select,
-input[type="password"]:select,
-input[type="datetime"]:select,
-input[type="datetime-local"]:select,
-input[type="date"]:select,
-input[type="month"]:select,
-input[type="time"]:select,
-input[type="week"]:select,
-input[type="number"]:select,
-input[type="email"]:select,
-input[type="url"]:select,
-input[type="search"]:select,
-input[type="tel"]:select,
-input[type="color"]:select,
-.uneditable-input:select {   
-  border-color: rgba(255, 255, 102, 0.8);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(255, 255, 102, 0.6);
-  outline: 0 none;
+.custom-well
+{
+    padding: 15px 0;
+}
+
+.margin-top-15
+{
+    margin-top: 15px;
+}
+
+.center-vert {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
 }

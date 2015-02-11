@@ -10,7 +10,6 @@
     <link href='http://fonts.googleapis.com/css?family=Roboto:700,400' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Michroma' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="css/custom.css">
-    <link rel="stylesheet" href="css/user.css" />
 
     <script src="scripts/jquery-2.1.3.min.js"></script>
     <script src="scripts/bootstrap.min.js"></script>
@@ -60,6 +59,11 @@
                                 <div id="is-friends-div" class="hide">
                                     <h4 class="theme-color-green italic">
                                         Friends&nbsp;<span class="glyphicon glyphicon-ok glyph-class"></span>
+                                    </h4>
+                                </div>
+                                <div id="mutual-friends-div" class="hide">
+                                    <h4 class=" italic">
+                                        Mutual Friends:&nbsp;<span class="theme-color" id="mutual-friends-span"></span>
                                     </h4>
                                 </div>
                             </div>
@@ -128,6 +132,14 @@
                                     </div>
                                     <div class="col-xs-8">
                                         <h4 id="email-label"></h4>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-4">
+                                        <h4 class="attrib-meta">Member since:</h4>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <h4 id="member-since-label"></h4>
                                     </div>
                                 </div>
 

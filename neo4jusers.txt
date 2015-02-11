@@ -1,5 +1,5 @@
 // Users
-CREATE UNIQUE (FallenShard:User 
+CREATE (FallenShard:User 
         { username: "FallenShard",
           password: "FallenShard",
           email: "nemanjabartolovic@yahoo.com",
@@ -10,10 +10,11 @@ CREATE UNIQUE (FallenShard:User
           gender: "M",
           avatarImage: "avatar1.jpg",
           status: "Member",
+          memberSinceDate: "1388587716000",
           sessionId: ""
         })
         
-CREATE UNIQUE (Mefisto:User 
+CREATE (Mefisto:User 
         { username: "Mefisto",
           password: "Mefisto",
           email: "stefan.stojanovic@elfak.rs",
@@ -24,10 +25,11 @@ CREATE UNIQUE (Mefisto:User
           gender: "M",
           avatarImage: "avatar2.jpg",
           status: "Member",
+          memberSinceDate: "1391352516000",
           sessionId: ""
         })
 
-CREATE UNIQUE (admin:User 
+CREATE (admin:User 
         { username: "admin",
           password: "admin",
           email: "admin@grid.com",
@@ -38,10 +40,11 @@ CREATE UNIQUE (admin:User
           gender: "O",
           avatarImage: "admin.png",
           status: "Admin",
+          memberSinceDate: "1393858116000",
           sessionId: ""
         })
 
-CREATE UNIQUE (Johnny87:User 
+CREATE (Johnny87:User 
         { username: "Johnny87",
           password: "Johnny87",
           email: "johnny.smith87@gmail.com",
@@ -52,10 +55,11 @@ CREATE UNIQUE (Johnny87:User
           gender: "M",
           avatarImage: "avatar3.jpg",
           status: "Member",
+          memberSinceDate: "1396622916000",
           sessionId: ""
         })
         
-CREATE UNIQUE (Marinijum:User 
+CREATE (Marinijum:User 
         { username: "Marinijum",
           password: "Marinijum",
           email: "marina92@yahoo.com",
@@ -66,10 +70,11 @@ CREATE UNIQUE (Marinijum:User
           gender: "F",
           avatarImage: "avatar4.jpg",
           status: "Member",
+          memberSinceDate: "1399301316000",
           sessionId: ""
         })
         
-CREATE UNIQUE (Masterooo:User 
+CREATE (Masterooo:User 
         { username: "Masterooo",
           password: "Masterooo",
           email: "masterooo95@yahoo.com",
@@ -80,10 +85,11 @@ CREATE UNIQUE (Masterooo:User
           gender: "M",
           avatarImage: "avatar5.jpg",
           status: "Member",
+          memberSinceDate: "1402066116000",
           sessionId: ""
         })
 
-CREATE UNIQUE (GandalfTheGrey:User 
+CREATE (GandalfTheGrey:User 
         { username: "GandalfTheGrey",
           password: "GandalfTheGrey",
           email: "bryantheslayer91@yahoo.com",
@@ -94,10 +100,11 @@ CREATE UNIQUE (GandalfTheGrey:User
           gender: "M",
           avatarImage: "avatar6.jpg",
           status: "Member",
+          memberSinceDate: "1404744516000",
           sessionId: ""
         })
         
-CREATE UNIQUE(FizzFizz:User
+CREATE(FizzFizz:User
         { username: "FizzFizz",
           password: "FizzFizz",
           email: "fizz@gmail.com",
@@ -108,7 +115,152 @@ CREATE UNIQUE(FizzFizz:User
           gender: "F",
           avatarImage: "avatar2.jpg",
           status: "Member",
+          memberSinceDate: "1407509316000",
           sessionId: ""
         })
         
+CREATE(xKillerx:User
+        { username: "xKillerx",
+          password: "xKillerx",
+          email: "joey@gmail.com",
+          firstName: "Joey",
+          lastName: "Bailes",
+          birthDate: "697820029000",
+          location: "Slaying you in-game",
+          gender: "M",
+          avatarImage: "avatar10.jpg",
+          status: "Member",
+          memberSinceDate: "1410274116000",
+          sessionId: ""
+        })
         
+CREATE(Zile97:User
+        { username: "Zile97",
+          password: "Zile97",
+          email: "zika@yahoo.com",
+          firstName: "Zivojin",
+          lastName: "Misic",
+          birthDate: "876494916000",
+          location: "U svetlosti",
+          gender: "M",
+          avatarImage: "avatar7.jpg",
+          status: "Member",
+          memberSinceDate: "1412952516000",
+          sessionId: ""
+        })
+        
+CREATE(Theodorus:User
+        { username: "Theodorus",
+          password: "Theodorus",
+          email: "admin@grid.com",
+          firstName: "Jonathan",
+          lastName: "Blaithe",
+          birthDate: "697820029000",
+          location: "in the GRID",
+          gender: "M",
+          avatarImage: "admin.png",
+          status: "Admin",
+          memberSinceDate: "1384181316000",
+          sessionId: ""
+        })
+        
+CREATE(GGRapture:User
+        { username: "GGRapture",
+          password: "GGRapture",
+          email: "admin@grid.com",
+          firstName: "Gustaf",
+          lastName: "Akelson",
+          birthDate: "762878916000",
+          location: "Sweden",
+          gender: "M",
+          avatarImage: "avatar8.jpg",
+          status: "Member",
+          memberSinceDate: "1418395716000",
+          sessionId: ""
+        })
+
+        
+// Friendships
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "FallenShard") AND (user2.username = "Marinijum")
+CREATE user1-[:IS_FRIENDS_WITH]->user2        
+        
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "FallenShard") AND (user2.username = "admin")
+CREATE user1-[:IS_FRIENDS_WITH]->user2        
+        
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "FallenShard") AND (user2.username = "Zile97")
+CREATE user1-[:IS_FRIENDS_WITH]->user2        
+        
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "FallenShard") AND (user2.username = "GandalfTheGrey")
+CREATE user1-[:IS_FRIENDS_WITH]->user2      
+        
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "FallenShard") AND (user2.username = "Mefisto")
+CREATE user1-[:IS_FRIENDS_WITH]->user2     
+
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "FallenShard") AND (user2.username = "FizzFizz")
+CREATE user1-[:IS_FRIENDS_WITH]->user2    
+
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "FallenShard") AND (user2.username = "Theodorus")
+CREATE user1-[:IS_FRIENDS_WITH]->user2    
+        
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "Mefisto") AND (user2.username = "Marinijum")
+CREATE user1-[:IS_FRIENDS_WITH]->user2        
+        
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "Marinijum") AND (user2.username = "FizzFizz")
+CREATE user1-[:IS_FRIENDS_WITH]->user2       
+        
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "admin") AND (user2.username = "Theodorus")
+CREATE user1-[:IS_FRIENDS_WITH]->user2      
+
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "FizzFizz") AND (user2.username = "Theodorus")
+CREATE user1-[:IS_FRIENDS_WITH]->user2 
+
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "Theodorus") AND (user2.username = "GGRapture")
+CREATE user1-[:IS_FRIENDS_WITH]->user2
+        
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "xKillerx") AND (user2.username = "GGRapture")
+CREATE user1-[:IS_FRIENDS_WITH]->user2       
+
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "FizzFizz") AND (user2.username = "Johnny87")
+CREATE user1-[:IS_FRIENDS_WITH]->user2      
+
+MATCH (user1:User), (user2:User)
+WHERE (user1.username = "Masterooo") AND (user2.username = "Mefisto")
+CREATE user1-[:IS_FRIENDS_WITH]->user2
+
+CREATE (TheWitcher2:Game
+        { title: "The Witcher 2: Assassins of Kings",
+          description: "Sequel to the critically-acclaimed PC RPG of 2007, The Witcher 2: Assassins of Kings promises to be bigger, better, and more beautiful than its predecessor. Based on fantasy novels written by Polish writer Andrzej Sapkowski, The Witcher 2 has players once again taking control of bad-ass \"witcher\" Geralt of Rivia. For those unfamiliar with Sapkowski's fiction, witchers are monster-hunters who have received special training and have had their bodies modified at an early age to receive supernatural powers. Whereas the first game used a modified version of BioWare's Aurora engine (originally used in 2002's Neverwinter Nights), developer CD Projekt RED has designed a new game engine (called the \"RED Engine\") specifically for The Witcher 2. With this new custom-built modern engine, the game now features high-resolution textures, increased polygon count for character models, and lush, detailed landscapes.",
+          genre: "Role-Playing",
+          mode: "Single-Player",
+          publisher: "NAMCO Bandai",
+          platforms: ["Windows", "Mac OS X", "Linux"],
+          releaseDate: "1305644029000",
+          thumbnail: "witcher2_tn.png",
+          images: ["witcher2_i1.jpg", "witcher2_i2.jpg", "witcher2_i3.jpg", "witcher2_i4.jpg", "witcher2_i5.jpg"]
+        })
+        
+CREATE (n:Game 
+        { title : 'Dota 2',
+		  description : "Dota 2 is a 2013 multiplayer online battle arena video game and the stand-alone sequel to the Defense of the Ancients (DotA) Warcraft III: Reign of Chaos and Warcraft III: The Frozen Throne mod. Developed by Valve Corporation, Dota 2 was released as a free-to-play title for Microsoft Windows, OS X and Linux in July 2013, concluding a Windows-only public beta testing phase that began in 2011. The game is available exclusively through Valve's content-delivery platform, Steam. Dota 2 is played in discrete matches involving two teams of five players, each of which occupies a stronghold at a corner of the map. Each stronghold contains a building called the \"Ancient\", which the opposite team must destroy to win the match. Each player controls a \"Hero\" character and focuses on leveling up, collecting gold, acquiring items and fighting against the other team to achieve victory. Development of Dota 2 began in 2009, when the developer of the DotA mod, IceFrog, was hired by Valve as lead designer. Dota 2 was praised by critics for its gameplay, production quality and faithfulness to its predecessor. However, the game was criticized for its steep learning curve and inhospitable community. Dota 2 has become the most actively played game on Steam, with daily peaks of over 800,000 concurrent players.",
+		  genre : 'Multi-Player Online Battle Arena',
+		  mode : 'Multi-Player',
+		  publisher : 'Valve Corporation',
+		  platforms : [ "Windows", "Mac OS X", "Linux" ],
+		  releaseDate : '1373328000000',
+		  thumbnail : 'dota2_tn.png',
+		  images : [ 'dota2_i1.jpg', 'dota2_i2.jpg', 'dota2_i3.jpg']
+        })

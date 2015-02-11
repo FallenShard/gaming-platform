@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Welcome to GRID</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="css/bootstrap-slated.min.css">
+    <link rel="stylesheet" href="css/rateit.css">
+    <link href='http://fonts.googleapis.com/css?family=Roboto:700,400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Michroma' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/custom.css">
+
+    <script src="scripts/jquery-2.1.3.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+
+    <script src="scripts/header.js"></script>
+    <script src="scripts/search.js"></script>
+</head>
+<body>
+    <div id="header-div">
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-3">
+                <div id="tags-filter" class="filter-div">
+                    <div class="form-group">
+                        <label for="tags-input">Type in any keywords separated by commas</label>
+                        <input type="text" class="form-control" id="tags-input" />
+                    </div>
+                    <button id="search-button" class="btn btn-block btn-primary">Search</button>
+                </div>
+            </div>
+            <div class="col-xs-9">
+                <div id="item-div-header" class="row">
+                    <div class="col-xs-4" style="height: 66px">
+                        <div id="data-counter" class="center-vert">
+                        </div>
+                    </div>
+
+                    <div class="col-xs-4 text-center">
+                        <ul id="pagination-ul" class="pagination">
+                            <li><a id="prev-page" href="#">←</a></li>
+                            <li><a id="page-1" href="#">1</a></li>
+                            <li><a id="page-2" href="#">2</a></li>
+                            <li><a id="page-3" href="#">3</a></li>
+                            <li><a id="next-page" href="#">→</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="col-xs-4 text-right" style="height: 66px">
+                        <div id="page-counter" class="center-vert">
+                        </div>
+                    </div>
+                </div>
+                <div id="item-content-div" class="row">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>

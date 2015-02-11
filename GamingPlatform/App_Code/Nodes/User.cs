@@ -17,6 +17,7 @@ namespace Nodes
         public string gender { get; set; }
         public string avatarImage { get; set; }
         public string status { get; set; }
+        public string memberSinceDate { get; set; }
         public string sessionId { get; set; }
     }
 }

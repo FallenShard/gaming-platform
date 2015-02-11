@@ -115,6 +115,15 @@ public interface IService
 
     #endregion
 
+    #region Data Search
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string[] GetUsersPagin(string filter, int page, int activeUser);
+
+    #endregion
+
     #region Data adding
 
     [OperationContract]
@@ -123,9 +132,11 @@ public interface IService
     string AddNewDeveloper(string name, string location, string owner, string website);
 
     [OperationContract]
-    [WebInvoke(Method = "GET",
-                ResponseFormat = WebMessageFormat.Json)]
-    string addNewGame(string title, string description, string genre, string mode, string publisher, string platforms, string releaseDate, string thumbnail, string logo, string images, string review, string website, string additionalInfo);
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string addNewGame(Game newGame);
 
     [OperationContract]
     [WebInvoke(Method = "GET",

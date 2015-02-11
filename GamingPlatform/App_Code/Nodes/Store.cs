@@ -11,8 +11,8 @@ namespace Nodes
     /// </summary>
     public class Store
     {
-        public String location { get; set; }
-        public String address { get; set; }
-        public String dateOpened { get; set; }
+        public string location { get; set; }
+        public string address { get; set; }
+        public string dateOpened { get; set; }
     } 
 }

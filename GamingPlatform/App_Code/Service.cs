@@ -19,6 +19,8 @@ using Relationships;
 [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
 public class Service : IService
 {
+    private static int paginationAmount = 8;
+
     private string toJson(object obj)
     {
         return JsonConvert.SerializeObject(obj);
@@ -130,6 +132,15 @@ public class Service : IService
 
         if (reqSent > 0)
             data = "requestSent";
+
+        var mutualFriends = client.Cypher
+            .Match("(user:User)-[:IS_FRIENDS_WITH*2..2]-(friend:User)")
+            .Where((User user) => user.username == viewer)
+            .AndWhere((User friend) => friend.username == openedUser)
+            .Return(() => Return.As<int>("count(*)"))
+            .Results.Single();
+
+        data += "|" + mutualFriends.ToString();
 
         return data;
     }
@@ -336,6 +347,8 @@ public class Service : IService
             })
             .Results;
 
+        wallPostNodes = wallPostNodes.OrderByDescending(x => x.wallPost.timestamp);
+
         foreach (var wallPost in wallPostNodes)
         {
             wallPosts.Add(toJson(wallPost));
@@ -369,6 +382,10 @@ public class Service : IService
         newUser.status = "Member";
         newUser.sessionId = CreateSHAHash(newUser.username + newUser.password + DateTime.Now.ToString("MM\\/dd\\/yyyy h\\:mm tt"));
 
+        TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
+        int secondsSinceEpoch = (int)t.TotalSeconds;
+        newUser.memberSinceDate = secondsSinceEpoch.ToString();
+
         client.Cypher
             .Create("(user:User {newUser})")
             .WithParam("newUser", newUser)
@@ -394,10 +411,46 @@ public class Service : IService
 
     #endregion
 
+    #region Data search
+
+    public string[] GetUsersPagin(string filter, int page, int activeUser)
+    {
+        List<string> result = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var userNodes = client.Cypher
+            .Match("(n:User)")
+            .Return(n => n.As<User>())
+            .OrderBy("tolower(n.username)")
+            .Skip((page - 1) * paginationAmount)
+            .Limit(paginationAmount)
+            .Results;
+
+        foreach (var user in userNodes)
+        {
+            result.Add(toJson(user));
+        }
+
+        var userCount = client.Cypher
+            .Match("(user:User)")
+            .Return((c, user) => new
+            {
+                c = user.Count()
+            })
+            .Results.Single();
+
+        result.Add(userCount.c.ToString());
+
+        return result.ToArray();
+    }
+
+    #endregion
 
     #region Data adding
 
-    
+
 
     public string AddNewDeveloper(string name, string location, string owner, string website)
     {
@@ -429,7 +482,7 @@ public class Service : IService
         return toJson(newDeveloper);
     }
 
-    public string addNewGame(string title, string description, string genre, string mode, string publisher, string platforms, string releaseDate, string thumbnail, string logo, string images, string review, string website, string additionalInfo)
+    public string addNewGame(Game newGame)
     {
         string retVal = "failed";
 
@@ -438,27 +491,12 @@ public class Service : IService
 
         var results = client.Cypher
             .Match("(game:Game)")
-            .Where((Game game) => game.title == title)
+            .Where((Game game) => game.title == newGame.title)
             .Return(game => game.As<Game>()).Results;
 
         // There's already a game with that title
         if (results.Count() > 0)
             return retVal;
-
-        Game newGame = new Game();
-        newGame.title = title;
-        newGame.description = description;
-        newGame.genre = genre;
-        newGame.mode = mode;
-        newGame.publisher = publisher;
-        //newGame.platforms = platforms.to;
-        newGame.releaseDate = releaseDate;
-        newGame.thumbnail = thumbnail;
-        newGame.logo = logo;
-        //newGame.images = images;
-        newGame.review = review;
-        newGame.website = website;
-        newGame.additionalInfo = additionalInfo;
 
         client.Cypher
             .Create("(game:Game {newGame})")
@@ -466,25 +504,6 @@ public class Service : IService
             .ExecuteWithoutResults();
 
         return toJson(newGame);
-    }
-
-    public string addNewWallPost(string content, string timestamp)
-    {
-        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
-        client.Connect();
-
-        // No checks needed
-
-        WallPost newWallPost = new WallPost();
-        newWallPost.content = content;
-        newWallPost.timestamp = timestamp;
-
-        client.Cypher
-            .Create("(wallPost:WallPost {newWallPost})")
-            .WithParam("newWallPost", newWallPost)
-            .ExecuteWithoutResults();
-
-        return toJson(newWallPost);
     }
 
     public string addNewStore(string location, string address, string dateOpened)

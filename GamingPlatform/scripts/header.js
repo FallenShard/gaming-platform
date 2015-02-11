@@ -4,6 +4,22 @@
     function publicInit() {
         view.init();
         controller.init();
+
+        $("#games-button").click(function () {
+            window.location.replace("search.html?label=Game");
+        });
+
+        $("#developers-button").click(function () {
+            window.location.replace("search.html?label=Developer");
+        });
+
+        $("#community-button").click(function () {
+            window.location.replace("search.html?label=User");
+        });
+
+        $("#stores-button").click(function () {
+            window.location.replace("stores.html");
+        });
     }
 
     function publicIsUserLoggedIn() {
@@ -225,8 +241,8 @@
 
             if (this.validateAlphanumeric(signUpData.username))
                 errorMessage += "\n - Username must contain alphanumeric characters only";
-            if (signUpData.username.length > 20 || signUpData.username.length < 8)
-                errorMessage += "\n - Username must be 8-20 characters long";
+            if (signUpData.username.length > 20 || signUpData.username.length < 4)
+                errorMessage += "\n - Username must be 4-20 characters long";
             if (signUpData.password.length < 3)
                 errorMessage += "\n - Password must be at least 3 characters long";
             if (this.hasWhiteSpace(signUpData.password))

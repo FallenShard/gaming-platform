@@ -27,9 +27,6 @@
             headerBar.init();
         });
 
-        var date = new Date();
-        $("#date-span").html("Posted on " + date.toLocaleString());
-
         enableTabs();
 
         initModel();
@@ -84,7 +81,7 @@
             }
 
             if (activeUser.username !== openedUser.username) {
-                userPanel.setupAddButton();
+                userPanel.setupRelationStatus();
             }
         }
     }
@@ -100,7 +97,7 @@
             $("#open-edit-dlg-btn").toggleClass("hide");
         }
 
-        function publicSetupAddButton() {
+        function publicSetupRelationStatus() {
             $("#add-friend-button").click(function () {
                 $(this).button('loading');
                 controller.sendFriendRequest(activeUser.username, openedUser.username);
@@ -145,18 +142,22 @@
             },
 
             onResolveFriendshipSuccess: function (receivedData) {
-                console.log(receivedData);
-                if (receivedData === "friends") {
+                var data = receivedData.split("|");
+
+                if (data[0] === "friends") {
                     $("#is-friends-div").removeClass("hide");
                     $("#tab-wall").removeClass("hide");
                 }
-                else if (receivedData === "requestSent") {
+                else if (data[0] === "requestSent") {
                     $("#add-friend-button").button('loading');
                     $("#add-friend-button").removeClass("hide");
                 }
                 else {
                     $("#add-friend-button").removeClass("hide");
                 }
+
+                $("#mutual-friends-div").removeClass("hide");
+                $("#mutual-friends-span").html(data[1]);
             },
 
             sendFriendRequest: function (source, target) {
@@ -261,6 +262,9 @@
                 $("#status-label").html(userData.status);
                 this.formatStatusLabel(userData.status);
                 $("#email-label").html(userData.email);
+
+                var memberSinceDate = model.createDate(userData, "memberSinceDate");
+                $("#member-since-label").html(memberSinceDate.toDateString().substring(4));
             },
 
             setEditData: function (userData) {
@@ -353,9 +357,9 @@
         return {
             init: publicInit,
             showEditButton: publicShowEditButton,
-            setupAddButton: publicSetupAddButton
+            setupRelationStatus: publicSetupRelationStatus
         }
-    }());
+    })();
 
     var friendRequests = (function () {
         function publicInit() {
@@ -402,7 +406,6 @@
 
                 $fReqs.append(fReqView);
             }
-            console.log(receivedData);
         }
 
         function buildFriendRequestView(friend) {
@@ -550,7 +553,7 @@
         return {
             init: publicInit
         }
-    }());
+    })();
 
     var friendList = (function () {
 
@@ -722,7 +725,7 @@
             init: publicInit,
             addFriend: publicAddFriend
         }
-    }());
+    })();
 
     var wall = (function () {
         var noOfwallPosts = 0;
@@ -751,6 +754,14 @@
                 $(post).hide();
                 $(post).insertAfter("#input-wall-post-div");
                 $(post).show('slow');
+
+                if (noOfwallPosts === 0)
+                {
+                    $("#no-message-h3").remove();
+                }
+
+                noOfwallPosts++;
+                $("#tab-wall").html("Wall Posts (" + noOfwallPosts + ")");
 
                 $("#wall-post-input").val("");
             });
@@ -797,13 +808,16 @@
             var $wall = $("#wall");
             var input = $("#input-wall-post-div").detach();
 
+            
             if (receivedData.length > 0) {
-                $("#tab-wall-posts").attr("value", receivedData.length);
-                $("#tab-wall-posts").html("Wall Posts (" + receivedData.length + ")");
+                noOfwallPosts = receivedData.length;
+                $("#tab-wall").html("Wall Posts (" + noOfwallPosts + ")");
                 $wall.empty();
 
-                noOfwallPosts = receivedData.length;
+                receivedData.sort(function (a, b) { return parseInt(a.timestamp) - parseInt(b.timestamp) });
             }
+
+
 
             var documentFragment = $(document.createDocumentFragment());
 
@@ -817,7 +831,6 @@
                 }
 
                 var postView = buildPostView(item.wallPost, item.writer);
-                
 
                 documentFragment.append(postView);
             }
@@ -881,8 +894,20 @@
 
             var imgDiv = document.createElement("div");
             $(imgDiv).attr("class", "col-xs-2 text-center");
-            $(imgDiv).html("<img src='img/avatars/" + user.avatarImage + "' class='img-responsive img-center'>");
             
+            var img = document.createElement("img");
+            $(img).attr("src", "img/avatars/" + user.avatarImage);
+            $(img).attr("class", "img-responsive img-center");
+
+            if (user.status === "Admin")
+            {
+                $(img).attr("style", "border: red 1px solid;");
+                $(wellDiv).attr("style", "border: red 1px solid;");
+            }
+
+            $(imgDiv).html(img);
+
+
             var userDiv = document.createElement("div");
             $(userDiv).attr("class", "col-xs-10");
 
@@ -926,6 +951,17 @@
                     $(rowDiv).hide('fast', function () {
                         $(rowDiv).remove();
                     });
+
+                    noOfwallPosts--;
+                    if (noOfwallPosts > 0)
+                        $("#tab-wall").html("Wall Posts (" + noOfwallPosts + ")");
+                    else
+                    {
+                        $("#tab-wall").html("Wall Posts");
+                        $("#wall").append(noWallPostsHtml);
+                    }
+                        
+
                 });
                 $(removeBtnDiv).append(removeButton);
             }
@@ -983,8 +1019,8 @@
 
         return {
             init: publicInit
-        }
-    }());
+        };
+    })();
 
     $(document).ready(documentInit);
 })();
