@@ -134,6 +134,13 @@ public interface IService
                BodyStyle = WebMessageBodyStyle.Bare)]
     string AddNewGame(Game newGame);
 
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string EditGame(Game editedGame);
+
     #endregion
 
     #region Developer Operations
@@ -144,6 +151,13 @@ public interface IService
                RequestFormat = WebMessageFormat.Json,
                BodyStyle = WebMessageBodyStyle.Bare)]
     string AddNewDeveloper(Developer newDeveloper);
+
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string EditDeveloper(Developer editedDeveloper);
 
     #endregion
 

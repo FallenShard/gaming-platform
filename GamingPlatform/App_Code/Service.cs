@@ -454,6 +454,21 @@ public class Service : IService
         return toJson(newGame);
     }
 
+    public string EditGame(Game editedGame)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(game:Game)")
+            .Where((Game game) => game.title == editedGame.title)
+            .Set("user = {editedGame}")
+            .WithParam("editedGame", editedGame)
+            .ExecuteWithoutResults();
+
+        return toJson(editedGame);
+    }
+
     #endregion
 
     #region Developer Operations
@@ -480,11 +495,26 @@ public class Service : IService
         return toJson(newDeveloper);
     }
 
+    public string EditDeveloper(Developer editedDeveloper)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(developer:Developer)")
+            .Where((Developer developer) => developer.name == editedDeveloper.name)
+            .Set("developer = {editedDeveloper}")
+            .WithParam("editedDeveloper", editedDeveloper)
+            .ExecuteWithoutResults();
+
+        return toJson(editedDeveloper);
+    }
+
     #endregion
 
     #region Data adding
 
-public string addNewWallPost(string content, string timestamp)
+    public string addNewWallPost(string content, string timestamp)
     {
         GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
         client.Connect();
