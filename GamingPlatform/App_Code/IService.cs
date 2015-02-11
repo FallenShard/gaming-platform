@@ -136,12 +136,18 @@ public interface IService
 
     #endregion
 
-    #region Data adding
+    #region Developer Operations
 
     [OperationContract]
-    [WebInvoke(Method = "GET",
-                ResponseFormat = WebMessageFormat.Json)]
-    string AddNewDeveloper(string name, string location, string owner, string website);
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string AddNewDeveloper(Developer newDeveloper);
+
+    #endregion
+
+    #region Data adding
 
     [OperationContract]
     [WebInvoke(Method = "GET",

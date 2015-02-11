@@ -18,7 +18,9 @@
         loggedIn: false,
         userData: {},
         //Data for game
-        gameData: {}
+        gameData: {},
+        //Data for developer
+        developerData: {}
     };
 
     var controller = {
@@ -60,6 +62,12 @@
             //Should add that button to the navbar...
             $("#add-game-button").click(function () {
                 view.validateAddGameInput();
+            });
+
+            //Adding new developer - I made one on test web page
+            //Should add that button to the navbar...
+            $("#add-developer-button").click(function () {
+                view.validateAddDeveloperInput();
             });
         },
 
@@ -205,8 +213,44 @@
                     $('#add-game-alert').modal('hide');
                 }, 500);
                 setTimeout(function () {
-                    //location.reload(true);
-                    window.location.replace("index.html");
+                    location.reload(true);
+                    //window.location.replace("index.html");
+                }, 1000);
+            }
+        },
+
+        //Adding new developer as object
+        requestAddDeveloper: function (newDeveloperData) {
+            $.ajax({
+                type: "POST",
+                url: "Service.svc/AddNewDeveloper",
+                data: JSON.stringify(newDeveloperData),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    controller.onAddDeveloperSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing POST ajax " + result);
+                }
+            });
+        },
+
+        onAddDeveloperSuccess: function (receivedData) {
+            if (receivedData === "failed")
+                alert("Add new developer form contains the following errors: \n - Game with that title already exists");
+            else {
+                $("#add-developer-alert").show('fast');
+
+                model.gameData = JSON.parse(receivedData);
+                
+                setTimeout(function () {
+                    $('#add-developer-alert').modal('hide');
+                }, 500);
+                setTimeout(function () {
+                    location.reload(true);
+                    //window.location.replace("index.html");
                 }, 1000);
             }
         }
@@ -225,6 +269,7 @@
             $("#log-in-alert").hide();
             $("#sign-up-alert").hide();
             $("#add-game-alert").hide();
+            $("#add-developer-alert").hide();
 
             //var glow = ;
             setInterval(function () {
@@ -312,6 +357,13 @@
             return true;
         },
 
+        validateLetters: function (string) {
+            if (/^[A-Za-z]+$/.test(string)) {
+                return false;
+            }
+            return true;
+        },
+
         hasWhiteSpace: function (string) {
             return /\s/g.test(string);
         },
@@ -372,7 +424,33 @@
                 controller.requestAddGame(newGameData);
             }
             else {
-                alert("Sign up form contains the following errors: " + errorMessage);
+                alert("Add new game form contains the following errors: " + errorMessage);
+            }
+        },
+
+        //Validating new developer
+        validateAddDeveloperInput: function () {
+            var errorMessage = "";
+
+            var newDeveloperData = {};
+
+            newDeveloperData.name = $("#nameInput").val();
+            newDeveloperData.location = $("#developerLocationInput").val();
+            newDeveloperData.owner = $("#ownerInput").val();
+            newDeveloperData.website = $("#websiteInput").val();
+
+            if (this.validateAlphanumeric(newDeveloperData.name))
+                errorMessage += "\n - Name must contain alphanumeric characters only";
+            if (newDeveloperData.name.length > 25 || newDeveloperData.name.length < 8)
+                errorMessage += "\n - Title must be 8-25 characters long";
+
+            if (errorMessage === "") {
+                console.log("Success!");
+
+                controller.requestAddDeveloper(newDeveloperData);
+            }
+            else {
+                alert("Add new developer form contains the following errors: " + errorMessage);
             }
         }
     };

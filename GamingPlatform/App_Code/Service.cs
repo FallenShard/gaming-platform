@@ -446,9 +446,6 @@ public class Service : IService
         if (results.Count() > 0)
             return "failed";
 
-        Random rnd = new Random();
-        int avatarId = rnd.Next(1, 10);
-
         client.Cypher
             .Create("(game:Game {newGame})")
             .WithParam("newGame", newGame)
@@ -459,31 +456,21 @@ public class Service : IService
 
     #endregion
 
-    #region Data adding
+    #region Developer Operations
 
-
-
-    public string AddNewDeveloper(string name, string location, string owner, string website)
+    public string AddNewDeveloper(Developer newDeveloper)
     {
-        string retVal = "failed";
-
         GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
         client.Connect();
 
         var results = client.Cypher
             .Match("(developer:Developer)")
-            .Where((Developer developer) => developer.name == name)
+            .Where((Developer developer) => developer.name == newDeveloper.name)
             .Return(developer => developer.As<Developer>()).Results;
 
-        // There's already a develoepr with that name
+        // There's already a developer with that name
         if (results.Count() > 0)
-            return retVal;
-
-        Developer newDeveloper = new Developer();
-        newDeveloper.name = name;
-        newDeveloper.location = location;
-        newDeveloper.owner = owner;
-        newDeveloper.website = website;
+            return "failed";
 
         client.Cypher
             .Create("(developer:Developer {newDeveloper})")
@@ -493,46 +480,11 @@ public class Service : IService
         return toJson(newDeveloper);
     }
 
-    public string addNewGame(string title, string description, string genre, string mode, string publisher, string platforms, string releaseDate, string thumbnail, string logo, string images, string review, string website, string additionalInfo)
-    {
-        string retVal = "failed";
+    #endregion
 
-        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
-        client.Connect();
+    #region Data adding
 
-        var results = client.Cypher
-            .Match("(game:Game)")
-            .Where((Game game) => game.title == title)
-            .Return(game => game.As<Game>()).Results;
-
-        // There's already a game with that title
-        if (results.Count() > 0)
-            return retVal;
-
-        Game newGame = new Game();
-        newGame.title = title;
-        newGame.description = description;
-        newGame.genre = genre;
-        newGame.mode = mode;
-        newGame.publisher = publisher;
-        //newGame.platforms = platforms.to;
-        newGame.releaseDate = releaseDate;
-        newGame.thumbnail = thumbnail;
-        //newGame.logo = logo;
-        //newGame.images = images;
-        newGame.review = review;
-        newGame.website = website;
-        newGame.additionalInfo = additionalInfo;
-
-        client.Cypher
-            .Create("(game:Game {newGame})")
-            .WithParam("newGame", newGame)
-            .ExecuteWithoutResults();
-
-        return toJson(newGame);
-    }
-
-    public string addNewWallPost(string content, string timestamp)
+public string addNewWallPost(string content, string timestamp)
     {
         GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
         client.Connect();
