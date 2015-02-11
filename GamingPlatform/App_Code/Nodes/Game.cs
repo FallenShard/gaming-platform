@@ -10,18 +10,18 @@ namespace Nodes
     /// </summary>
     public class Game
     {
-        public String title { get; set; }
-        public String description { get; set; }
-        public String genre { get; set; }
-        public String mode { get; set; }
-        public String publisher { get; set; }
-        public String[] platforms { get; set; }
-        public String releaseDate { get; set; }
-        public String thumbnail { get; set; }
-        public String logo { get; set; }
-        public String[] images { get; set; }
-        public String review { get; set; }
-        public String website { get; set; }
-        public String additionalInfo { get; set; }
+        public string title { get; set; }
+        public string description { get; set; }
+        public string genre { get; set; }
+        public string mode { get; set; }
+        public string publisher { get; set; }
+        public string[] platforms { get; set; }
+        public string releaseDate { get; set; }
+        public string thumbnail { get; set; }
+        //public String logo { get; set; }
+        public string[] images { get; set; }
+        public string review { get; set; }
+        public string website { get; set; }
+        public string additionalInfo { get; set; }
     } 
 }
