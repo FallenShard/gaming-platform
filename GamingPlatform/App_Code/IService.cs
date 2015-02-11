@@ -115,6 +115,27 @@ public interface IService
 
     #endregion
 
+    #region Game Operations
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string GetGameByTitle(string title);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string GetGameDeveloper(string title);
+
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string AddNewGame(Game newGame);
+
+    #endregion
+
     #region Data adding
 
     [OperationContract]

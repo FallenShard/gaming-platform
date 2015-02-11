@@ -394,10 +394,80 @@ public class Service : IService
 
     #endregion
 
+    #region Game Operations
+
+    public string GetGameByTitle(string title)
+    {
+        string data = "failed";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(game:Game)")
+            .Where((Game game) => game.title == title)
+            .Return(game => game.As<Game>()).Results;
+
+        if (results.Count() == 1)
+            data = toJson(results.First());
+
+        return data;
+    }
+
+    public string GetGameDeveloper(string title)
+    {
+        string data = "none";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(game:Game)-[r:Develops]-(developer:Developer)")
+            .Where((Game game) => game.title == title)
+            .Return(developer => developer.As<Developer>()).Results;
+
+        if (results.Count() == 1)
+            data = toJson(results.First());
+
+        return data;
+    }
+
+    public string AddNewGame(Game newGame)
+    {
+        /*GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(user:User)")
+            .Where((User user) => user.username == newUser.username)
+            .Return(user => user.As<User>()).Results;
+
+        // There's already a user with that username
+        if (results.Count() > 0)
+            return "failed";
+
+        Random rnd = new Random();
+        int avatarId = rnd.Next(1, 10);
+
+        newUser.avatarImage = "avatar" + avatarId + ".jpg";
+        newUser.status = "Member";
+        newUser.sessionId = CreateSHAHash(newUser.username + newUser.password + DateTime.Now.ToString("MM\\/dd\\/yyyy h\\:mm tt"));
+
+        client.Cypher
+            .Create("(user:User {newUser})")
+            .WithParam("newUser", newUser)
+            .ExecuteWithoutResults();
+
+        return toJson(newUser);*/
+
+        return string.Empty;
+    }
+
+    #endregion
 
     #region Data adding
 
-    
+
 
     public string AddNewDeveloper(string name, string location, string owner, string website)
     {
@@ -454,7 +524,7 @@ public class Service : IService
         //newGame.platforms = platforms.to;
         newGame.releaseDate = releaseDate;
         newGame.thumbnail = thumbnail;
-        newGame.logo = logo;
+        //newGame.logo = logo;
         //newGame.images = images;
         newGame.review = review;
         newGame.website = website;

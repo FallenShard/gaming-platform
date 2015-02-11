@@ -9,163 +9,190 @@
     <link rel="stylesheet" href="css/rateit.css">
     <link href='http://fonts.googleapis.com/css?family=Roboto:700,400' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Michroma' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="css/custom.css">
 
+    <link rel="stylesheet" href="css/custom.css">
     <link rel="stylesheet" href="css/game-style.css">
 
     <script src="scripts/jquery-2.1.3.min.js"></script>
     <script src="scripts/bootstrap.min.js"></script>
+    <script src="scripts/jquery.rateit.min.js"></script>
+
+    <script src="scripts/header.js"></script>
     <script src="scripts/game.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <a class="navbar-brand logo-style" href="#">GRID</a>
-            </div>
-            <div id="navbar" class="navbar-collapse collapse">
-                <div class="navbar-right" style="padding-right: 15px;">
-                    <button type="button" data-toggle="modal" href="#log-in-modal" class="guest-tools btn btn-primary navbar-btn">Log in</button>
-                    <button type="button" data-toggle="modal" href="#sign-up-modal" class="guest-tools btn btn-success navbar-btn">Sign Up</button>
-                    <span id="welcome-span" class="user-tools">Welcome, User</span>
-                    <button id="go-to-profile-button" type="button" class="user-tools btn btn-primary navbar-btn">Go to Profile</button>
-                    <button id="log-out-button" type="button" class="user-tools btn btn-primary navbar-btn">Log out</button>
-                </div>
+    <!--Grid navigation bar on top, log in modal and sign up modal-->
+    <div id="header-div"></div>
+    
+    <div class="container">
+        <!--Game title-->
+        <div class="row">
+            <div class="col-xs-12">
+                <h1 id="game-title" class="theme-color-yellow">GAME_NAME</h1>
             </div>
         </div>
-    </nav>
-
-    <div class="container">
+        <!--Separator-->
         <div class="row">
-            <div class="col-xs-offset-1 col-xs-7">
-                <!--Game name-->
-                <div class="row">
-                    <h1 id="game-name" class="yellow-text">GAME_NAME</h1>
-                </div>
-                <hr />
+            <div class="col-xs-12 thin-separator-theme">
+            </div>
+        </div>
+        <!--Game information-->
+        <div class="row">
+            <div class="col-xs-8">
                 <!--Game description-->
                 <div class="row">
-                    <h6 id="game-description">GAME_DESCRIPTION</h6>
+                    <div class="col-xs-12">
+                        <h6 id="game-description">GAME_DESCRIPTION</h6>
+                    </div>
                 </div>
-                <hr />
+                <!--Separator-->
+                <div class="row thin-separator-theme">
+                </div>
                 <!--Game rating-->
                 <div class="row">
-                    <h1>ADD RATING HERE</h1>
+                    <div class="col-xs-12">
+                        <!--TODO-->
+                        <h1 style="color:red;">ADD RATING HERE</h1>
+                    </div>
                 </div>
-                <hr />
+                <!--Separator-->
+                <div class="row thin-separator-theme">
+                </div>
                 <!--Game developed by-->
                 <div class="row">
                     <div class="col-xs-2">
-                        <h6>Developed by</h6>
+                        <h6 class="attrib-meta">Developed by</h6>
                     </div>
                     <div class="col-xs-10">
-                        <h6 id="game-developed-by" class="yellow-text">GAME_DEVELOPED_BY</h6>
+                        <h6 id="game-developed-by">GAME_DEVELOPED_BY</h6>
                     </div>
                 </div>
                 <!--Game genre-->
                 <div class="row">
                     <div class="col-xs-2">
-                        <h6>Genre</h6>
+                        <h6 class="attrib-meta">Genre</h6>
                     </div>
                     <div class="col-xs-10">
-                        <h6 id="game-genre" class="yellow-text">GAME_GENRE</h6>
+                        <h6 id="game-genre">GAME_GENRE</h6>
                     </div>
                 </div>
                 <!--Game mode-->
                 <div class="row">
                     <div class="col-xs-2">
-                        <h6>Mode</h6>
+                        <h6 class="attrib-meta">Mode</h6>
                     </div>
                     <div class="col-xs-10">
-                        <h6 id="game-mode" class="yellow-text">GAME_MODE</h6>
+                        <h6 id="game-mode">GAME_MODE</h6>
                     </div>
                 </div>
                 <!--Game release date-->
                 <div class="row">
                     <div class="col-xs-2">
-                        <h6>Release date</h6>
+                        <h6 class="attrib-meta">Release date</h6>
                     </div>
                     <div class="col-xs-10">
-                        <h6 id="game-release-date" class="yellow-text">GAME_RELEASE_DATE</h6>
+                        <h6 id="game-release-date">GAME_RELEASE_DATE</h6>
                     </div>
                 </div>
                 <!--Game platforms-->
                 <div class="row">
                     <div class="col-xs-2">
-                        <h6>Platforms</h6>
+                        <h6 class="attrib-meta">Platforms</h6>
                     </div>
                     <div class="col-xs-10">
-                        <h6 id="game-platforms" class="yellow-text">GAME_PLATFORMS</h6>
+                        <h6 id="game-platforms">GAME_PLATFORMS</h6>
                     </div>
                 </div>
                 <!--Game publisher-->
                 <div class="row">
                     <div class="col-xs-2">
-                        <h6>Publisher</h6>
+                        <h6 class="attrib-meta">Publisher</h6>
                     </div>
                     <div class="col-xs-10">
-                        <h6 id="game-publisher" class="yellow-text">GAME_PUBLISHER</h6>
+                        <h6 id="game-publisher">GAME_PUBLISHER</h6>
                     </div>
                 </div>
                 <!--Add game review-->
                 <div class="row user-tools">
-                    <hr />
-                    <button type="button"
-                            data-toggle="modal"
-                            href="#add-review-modal"
-                            class="user-tools btn btn-primary navbar-btn">
-                        Add Review
-                    </button>
+                    <div class="col-xs-12">
+                        <!--Separator-->
+                        <div class="row thin-separator-theme">
+                        </div>
+                        <!--Button-->
+                        <button id="add-review-button"
+                                type="button"
+                                data-toggle="modal"
+                                href="#add-review-modal"
+                                class="user-tools btn btn-primary navbar-btn">
+                            Add Review
+                        </button>
+                    </div>
                 </div>
                 <!--Game review 1-->
                 <div id="game-review-1" class="row">
-                    <hr />
-                    <div class="col-xs-2">
-                        <img id="game-review-1-avatar" class="fixed-width" src="img/carousel1.png" />
-                        <h6 id="game-review-1-username">USERNAME</h6>
-                        <h6 id="game-review-1-date" class="italic-text">DATE</h6>
-                    </div>
-                    <div class="col-xs-6">
-                        <h6 id="game-review-1-content" class="yellow-text">REVIEW</h6>
+                    <div class="col-xs-12">
+                        <!--Separator-->
+                        <div class="row thin-separator-theme">
+                        </div>
+                        <!--Review-->
+                        <div class="col-xs-2">
+                            <img id="game-review-1-avatar" class="fixed-width" src="img/carousel1.png" />
+                            <h6 id="game-review-1-username">USERNAME</h6>
+                            <h6 id="game-review-1-date" class="italic-text">DATE</h6>
+                        </div>
+                        <div class="col-xs-6">
+                            <h6 id="game-review-1-content" class="yellow-text">REVIEW</h6>
+                        </div>
                     </div>
                 </div>
                 <!--Game review 2-->
                 <div id="game-review-2" class="row">
-                    <hr />
-                    <div class="col-xs-2">
-                        <img id="game-review-2-avatar" class="fixed-width" src="img/carousel2.png" />
-                        <h6 id="game-review-2-username">USERNAME</h6>
-                        <h6 id="game-review-2-date" class="italic-text">DATE</h6>
-                    </div>
-                    <div class="col-xs-6">
-                        <h6 id="game-review-2-content" class="yellow-text">REVIEW</h6>
+                    <div class="col-xs-12">
+                        <!--Separator-->
+                        <div class="row thin-separator-theme">
+                        </div>
+                        <!--Review-->
+                        <div class="col-xs-2">
+                            <img id="game-review-2-avatar" class="fixed-width" src="img/carousel2.png" />
+                            <h6 id="game-review-2-username">USERNAME</h6>
+                            <h6 id="game-review-2-date" class="italic-text">DATE</h6>
+                        </div>
+                        <div class="col-xs-6">
+                            <h6 id="game-review-2-content" class="yellow-text">REVIEW</h6>
+                        </div>
                     </div>
                 </div>
                 <!-- Add as much as needed, maybe it can be done using javascript, I don't know... -->
             </div>
 
-            <div class="col-xs-3">
-                <!--Game logo-->
+            <div class="col-xs-4">
+                <!--Game thumbnail-->
                 <div class="row">
-                    <img id="game-logo" class="fixed-width" src="img/carousel2.png" />
+                    <img id="game-thumbnail" class="img-responsive center-image" src="img/carousel2.png" />
                 </div>
-                <hr />
+                <!--Separator-->
+                <div class="row thin-separator-theme">
+                </div>
                 <!--Game carousel-->
                 <div class="row">
-                    <div id="game-carousel" class="carousel slide fixed-width" data-ride="carousel">
+                    <div id="game-carousel" class="carousel slide center-image" data-ride=" carousel">
                         <ol class="carousel-indicators">
                             <li data-target="#game-carousel" data-slide-to="0" class="active"></li>
                             <li data-target="#game-carousel" data-slide-to="1"></li>
+                            <li data-target="#game-carousel" data-slide-to="2"></li>
                         </ol>
-                        <!-- Add as much as needed, maybe it can be done using javascript, I don't know... -->
 
                         <div class="carousel-inner" role="listbox">
                             <div class="item active">
-                                <img id="game-carousel-image-1" src="img/carousel1.png" alt="Image 1">
+                                <img id="game-carousel-image-1" class="img-responsive" src="img/carousel1.png">
                             </div>
 
                             <div class="item">
-                                <img id="game-carousel-image-2" src="img/carousel2.png" alt="Image 2">
+                                <img id="game-carousel-image-2" class="img-responsive" src="img/carousel2.png">
+                            </div>
+
+                            <div class="item">
+                                <img id="game-carousel-image-3" class="img-responsive" src="img/carousel2.png">
                             </div>
                         </div>
 
@@ -180,136 +207,17 @@
                         </a>
                     </div>
                 </div>
-                <hr />
+                <!--Separator-->
+                <div class="row thin-separator-theme">
+                </div>
                 <!--Game ownership-->
                 <div class="row">
                     <div id="game-store" class="user-tools navbar-collapse collapse">
                         <div class="navbar-right" style="padding-right: 15px;">
-                            <button id="go-to-profile-button" type="button" class="non-owner-tools btn btn-primary navbar-btn">Visit the store</button>
-                            <span id="owner-span" class="owner-tools green-text italic-text">You already own this game</span>
+                            <button id="go-to-profile-button" type="button" class="user-tools non-owner-tools btn btn-primary navbar-btn">Visit the store</button>
+                            <span id="owner-span" class="user-tools owner-tools theme-color-green italic">You already own this game<span class="glyphicon glyphicon-ok glyph-class"></span></span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!--Log in modal-->
-    <div id="log-in-modal" class="modal fade">
-        <div class="modal-dialog bs-example-modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title">Log in</h4>
-                </div>
-                <div class="modal-body container-fluid">
-                    <form>
-                        <label for="inputUsername">Username</label>
-                        <input type="text" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
-                        <label for="inputPassword">Password</label>
-                        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-                        <!--<div class="checkbox">
-                            <label>
-                                <input type="checkbox" value="remember-me"> Remember me
-                            </label>
-                        </div>-->
-                    </form>
-                    <div id="log-in-alert" class="alert alert-danger alert-dismissible" role="alert">Username and/or password are not correct.</div>
-                </div>
-                <div class="modal-footer">
-                    <a href="#" data-dismiss="modal" class="btn btn-default">Close</a>
-                    <a href="#" id="log-in-button" class="btn btn-primary">Log in</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!--Sign up modal-->
-    <div id="sign-up-modal" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title title-font">Sign Up</h4>
-                </div>
-                <div id="modal-add-body" class="modal-body container-fluid">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label for="usernameInput" class="col-sm-2 control-label">Username</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="usernameInput" placeholder="Unique, alphanumeric and between 8-20 characters" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="passwordInput" class="col-sm-2 control-label">Password</label>
-                            <div class="col-sm-10">
-                                <input type="password" class="form-control" id="passwordInput" placeholder="Consists of alphanumeric and special characters" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="repeatPassInput" class="col-sm-2 control-label">Repeat Password</label>
-                            <div class="col-sm-10">
-                                <input type="password" class="form-control" id="repeatPassInput" placeholder="Repeat password here" />
-                            </div>
-                        </div>
-                        <div class="thin-separator"></div>
-                        <div class="form-group">
-                            <label for="emailInput" class="col-sm-2 control-label">Email</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="emailInput" placeholder="Your email goes here" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="firstNameInput" class="col-sm-2 control-label">First Name</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="firstNameInput" placeholder="Your first name" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="lastNameInput" class="col-sm-2 control-label">Last Name</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="lastNameInput" placeholder="Your last name" />
-                            </div>
-                        </div>
-                        <div class="thin-separator"></div>
-                        <div class="form-group">
-                            <label for="lastNameInput" class="col-sm-2 control-label">Birth Date</label>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" id="yearInput" placeholder="Year" />
-                            </div>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" id="monthInput" placeholder="Month" />
-                            </div>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" id="dayInput" placeholder="Day" />
-                            </div>
-                        </div>
-                        <div id="gender-group" class="form-group">
-                            <label class="col-sm-2 control-label">Gender</label>
-                            <div class="col-sm-9">
-                                <label class="radio-inline">
-                                    <input type="radio" name="optradio" value="M">Male
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="optradio" value="F">Female
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="optradio" value="O">Other
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="locationInput" class="col-sm-2 control-label">Location</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="locationInput" placeholder="It can be anything, even a place from fiction" />
-                            </div>
-                        </div>
-                    </form>
-                    <div id="sign-up-alert" class="alert alert-success alert-dismissible" role="alert">Registration successful! You can now log in.</div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="sign-up-button" type="button" class="btn btn-success">Confirm</button>
                 </div>
             </div>
         </div>
@@ -336,7 +244,5 @@
             </div>
         </div>
     </div>
-
-    <script src="scripts/jquery.rateit.min.js"></script>
 </body>
 </html>
