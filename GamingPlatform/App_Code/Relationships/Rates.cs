@@ -10,6 +10,6 @@ namespace Relationships
     /// </summary>
     public class Rates
     {
-        public String rating { get; set; }
+        public double rating { get; set; }
     } 
 }

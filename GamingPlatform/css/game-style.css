@@ -1,17 +1,11 @@
-﻿.yellow-text {
-    color: yellow;
+﻿#game-thumbnail {
+    width: 150px;
+    height: 150px;
 }
 
-.green-text {
-    color: green;
-}
-
-.italic-text {
-    font-style: italic;
-}
-
-#game-name {
-    text-align: center;
+.center-image {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .fixed-width {

@@ -122,6 +122,57 @@ public interface IService
                ResponseFormat = WebMessageFormat.Json)]
     string[] GetUsersPagin(string filter, int page, int activeUser);
 
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string[] GetGamesPagin(string filter, int page, int activeUser);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string[] GetDevelopersPagin(string filter, int page, int activeUser);
+
+    #endregion
+
+    #region Game Operations
+
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string AddNewGame(Game newGame);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string GetGameByTitle(string title);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string CreateUserRating(double rating, string title, string username);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string RemoveUserRating(string title, string username);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string GetGameRating(string title);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string GetGameRatingByUser(string title, string username);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string GetGameDeveloper(string title);
+
     #endregion
 
     #region Data adding
@@ -130,13 +181,6 @@ public interface IService
     [WebInvoke(Method = "GET",
                 ResponseFormat = WebMessageFormat.Json)]
     string AddNewDeveloper(string name, string location, string owner, string website);
-
-    [OperationContract]
-    [WebInvoke(Method = "POST",
-               ResponseFormat = WebMessageFormat.Json,
-               RequestFormat = WebMessageFormat.Json,
-               BodyStyle = WebMessageBodyStyle.Bare)]
-    string addNewGame(Game newGame);
 
     [OperationContract]
     [WebInvoke(Method = "GET",

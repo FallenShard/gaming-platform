@@ -10,9 +10,10 @@ namespace Nodes
     /// </summary>
     public class Developer
     {
-        public String name { get; set; }
-        public String location { get; set; }
-        public String owner { get; set; }
-        public String website { get; set; }
+        public string name { get; set; }
+        public string location { get; set; }
+        public string owner { get; set; }
+        public string website { get; set; }
+        public string logo { get; set; }
     } 
 }

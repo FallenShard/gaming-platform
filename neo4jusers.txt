@@ -264,3 +264,31 @@ CREATE (n:Game
 		  thumbnail : 'dota2_tn.png',
 		  images : [ 'dota2_i1.jpg', 'dota2_i2.jpg', 'dota2_i3.jpg']
         })
+        
+CREATE (dev1:Developer
+        { name: "CD Projekt RED",
+          location: "Warsaw, Poland",
+          owner: "CD Projekt",
+          website: "en.cdprojektred.com/",
+          logo: "cdprojektred.jpg"
+        })
+        
+CREATE (dev2:Developer
+        { name: "Valve Corporation",
+          location: "Bellevue, Washington, US",
+          owner: "Self-owned",
+          website: "www.valvesoftware.com/",
+          logo: "valve.jpg"
+        })
+        
+MATCH (dev:Developer), (game:Game)
+WHERE (dev.name = "CD Projekt RED") AND (game.title = "The Witcher 2: Assassins of Kings")
+CREATE dev-[:DEVELOPS]->game        
+
+MATCH (dev:Developer), (game:Game)
+WHERE (dev.name = "Valve Corporation") AND (game.title = "Dota 2")
+CREATE dev-[:DEVELOPS]->game
+
+
+
+

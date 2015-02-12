@@ -294,6 +294,7 @@ public class Service : IService
         qParams.Add("ts", wallpost.timestamp);
         qParams.Add("con", wallpost.content);
 
+        // I'm sorry I have to use this abomination
         var query = new CypherQuery("MATCH (writer:User), (rec:User)" +
             "WHERE (writer.username = {wrname}) AND (rec.username = {recname})" +
             "CREATE (wp:WallPost {timestamp: {ts}, content: {con}}), (writer)-[:POSTED]->(wp), (rec)-[:HAS]->(wp)", qParams, CypherResultMode.Projection);
@@ -411,6 +412,7 @@ public class Service : IService
 
     #endregion
 
+
     #region Data search
 
     public string[] GetUsersPagin(string filter, int page, int activeUser)
@@ -420,9 +422,16 @@ public class Service : IService
         GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
         client.Connect();
 
-        var userNodes = client.Cypher
+        var queryBuilder = client.Cypher
             .Match("(n:User)")
-            .Return(n => n.As<User>())
+            .Where("n.username =~ {filter}")
+            .OrWhere("n.firstName =~ {filter}")
+            .OrWhere("n.lastName =~ {filter}")
+            .OrWhere("n.status =~ {filter}")
+            .WithParam("filter", ".*(?i)" + filter + ".*");
+
+        var userNodes = queryBuilder
+            .Return<User>("n")
             .OrderBy("tolower(n.username)")
             .Skip((page - 1) * paginationAmount)
             .Limit(paginationAmount)
@@ -433,17 +442,229 @@ public class Service : IService
             result.Add(toJson(user));
         }
 
-        var userCount = client.Cypher
-            .Match("(user:User)")
-            .Return((c, user) => new
-            {
-                c = user.Count()
-            })
+        var userCount = queryBuilder
+            .Return(() => Return.As<int>("count(n)"))
             .Results.Single();
 
-        result.Add(userCount.c.ToString());
+        result.Add(userCount.ToString());
 
         return result.ToArray();
+    }
+
+    public string[] GetGamesPagin(string filter, int page, int activeUser)
+    {
+        List<string> result = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var queryBuilder = client.Cypher
+            .Match("(n:Game)")
+            .Where("n.title =~ {filter}")
+            .OrWhere("n.genre =~ {filter}")
+            .OrWhere("n.mode =~ {filter}")
+            .OrWhere("n.publisher =~ {filter}")
+            .OrWhere("str(n.platforms) =~ {filter}")
+            .WithParam("filter", ".*(?i)" + filter + ".*");
+
+        var gameNodes = queryBuilder
+            .Return<Game>("n")
+            .OrderBy("tolower(n.title)")
+            .Skip((page - 1) * paginationAmount)
+            .Limit(paginationAmount)
+            .Results;
+
+        foreach (var game in gameNodes)
+        {
+            result.Add(toJson(game));
+        }
+
+        var gameCount = queryBuilder
+            .Return(() => Return.As<int>("count(n)"))
+            .Results.Single();
+
+        result.Add(gameCount.ToString());
+
+        return result.ToArray();
+    }
+
+    public string[] GetDevelopersPagin(string filter, int page, int activeUser)
+    {
+        List<string> result = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var queryBuilder = client.Cypher
+            .Match("(n:Developer)")
+            .Where("n.name =~ {filter}")
+            .OrWhere("n.location =~ {filter}")
+            .OrWhere("n.owner =~ {filter}")
+            .WithParam("filter", ".*(?i)" + filter + ".*");
+
+        var devNodes = queryBuilder
+            .Return<Developer>("n")
+            .OrderBy("tolower(n.title)")
+            .Skip((page - 1) * paginationAmount)
+            .Limit(paginationAmount)
+            .Results;
+
+        foreach (var dev in devNodes)
+        {
+            result.Add(toJson(dev));
+        }
+
+        var gameCount = queryBuilder
+            .Return(() => Return.As<int>("count(n)"))
+            .Results.Single();
+
+        result.Add(gameCount.ToString());
+
+        return result.ToArray();
+    }
+
+    #endregion
+
+    #region Game Operations
+
+    
+
+    public string AddNewGame(Game newGame)
+    {
+        string retVal = "failed";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(game:Game)")
+            .Where((Game game) => game.title == newGame.title)
+            .Return(game => game.As<Game>()).Results;
+
+        // There's already a game with that title
+        if (results.Count() > 0)
+            return retVal;
+
+        client.Cypher
+            .Create("(game:Game {newGame})")
+            .WithParam("newGame", newGame)
+            .ExecuteWithoutResults();
+
+        return toJson(newGame);
+    }
+
+    public string GetGameByTitle(string title)
+    {
+        string data = "failed";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(game:Game)")
+            .Where((Game game) => game.title == title)
+            .Return(game => game.As<Game>()).Results;
+
+        if (results.Count() == 1)
+            data = toJson(results.First());
+
+        return data;
+    }
+
+    public string CreateUserRating(double rating, string title, string username)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(game:Game)", "(user:User)")
+            .Where((Game game) => game.title == title)
+            .AndWhere((User user) => user.username == username)
+            .CreateUnique("user-[:RATES {rating: {rat}}]->game")
+            .WithParam("rat", rating)
+            .ExecuteWithoutResults();
+
+        return "success at adding rating";
+    }
+
+    public string RemoveUserRating(string title, string username)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(game:Game)<-[r:RATES]-(user:User)")
+            .Where((Game game) => game.title == title)
+            .AndWhere((User user) => user.username == username)
+            .Delete("r")
+            .ExecuteWithoutResults();
+
+        return "success at adding rating";
+    }
+
+    public string GetGameRating(string title)
+    {
+        string retVal = "nothing";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(game:Game)<-[r:RATES]-()")
+            .Where((Game game) => game.title == title)
+            .Return(() => new
+            {
+                count = Return.As<int>("count(r)"),
+                sum = Return.As<double>("sum(r.rating)")
+            }).Results;
+
+        if (results.Count() > 0)
+        {
+            var result = results.First();
+            retVal = toJson(result);
+        }
+
+        return retVal;
+    }
+
+    public string GetGameRatingByUser(string title, string username)
+    {
+        string retVal = "nothing";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(game:Game)<-[r:RATES]-(u:User)")
+            .Where((Game game) => game.title == title)
+            .AndWhere((User u) => u.username == username)
+            .Return(() => Return.As<double>("r.rating")).Results;
+
+        if (results.Count() > 0)
+        {
+            var result = results.First();
+            retVal = result.ToString();
+        }
+
+        return retVal;
+    }
+
+    public string GetGameDeveloper(string title)
+    {
+        string data = "none";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(developer:Developer)-[:DEVELOPS]->(game:Game)")
+            .Where((Game game) => game.title == title)
+            .Return(developer => developer.As<Developer>()).Results;
+
+        if (results.Count() == 1)
+            data = toJson(results.First());
+
+        return data;
     }
 
     #endregion
@@ -482,29 +703,7 @@ public class Service : IService
         return toJson(newDeveloper);
     }
 
-    public string addNewGame(Game newGame)
-    {
-        string retVal = "failed";
 
-        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
-        client.Connect();
-
-        var results = client.Cypher
-            .Match("(game:Game)")
-            .Where((Game game) => game.title == newGame.title)
-            .Return(game => game.As<Game>()).Results;
-
-        // There's already a game with that title
-        if (results.Count() > 0)
-            return retVal;
-
-        client.Cypher
-            .Create("(game:Game {newGame})")
-            .WithParam("newGame", newGame)
-            .ExecuteWithoutResults();
-
-        return toJson(newGame);
-    }
 
     public string addNewStore(string location, string address, string dateOpened)
     {

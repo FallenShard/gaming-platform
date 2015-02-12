@@ -21,15 +21,27 @@
         });
 
         currLabel = getUrlVariable("label");
-        initModel();
-
+        loadActiveUser();
 
         pagination.init();
 
-        requestNodes(currLabel, currFilter);
+        $("#search-button").click(function () {
+            var input = $("#search-input").val();
+            currFilter = input.trim();
+
+            requestNodes();
+        });
+
+        $("#search-input").keyup(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-button").click();
+            }
+        });
+
+        requestNodes();
     }
 
-    function initModel() {
+    function loadActiveUser() {
         if (sessionStorage.activeUser) {
             var activeUserString = sessionStorage.activeUser;
             activeUser = JSON.parse(activeUserString);
@@ -57,10 +69,10 @@
         var $content = $("#item-content-div");
         $content.empty();
 
-        var tempRes = parseInt(receivedData.pop());
-        if (tempRes != resultCount)
+        var tempLength = parseInt(receivedData.pop());
+        if (resultCount !== tempLength)
         {
-            resultCount = tempRes;
+            resultCount = tempLength;
             pagination.setDataCount(resultCount);
         }
 
@@ -73,9 +85,21 @@
                 continue;
             }
 
-            var userView = buildUserView(item);
+            var userView = createViewFactory(currLabel, item);
 
             $content.append(userView);
+        }
+    }
+
+    function createViewFactory(label, item) {
+        if (label === "User") {
+            return buildUserView(item);
+        }
+        else if (label === "Developer") {
+            return buildDeveloperView(item);
+        }
+        else if (label === "Game") {
+            return buildGameView(item);
         }
     }
 
@@ -116,6 +140,57 @@
 
         $(rightPart).append(userLink);
         $(rightPart).append(userStatus);
+
+        $(well).html(leftPart);
+        $(well).append(rightPart);
+
+        $(positioner).append(well);
+        $(rowContainer).append(positioner);
+
+        return rowContainer;
+    }
+
+    function buildGameView(game) {
+        var rowContainer = document.createElement("div");
+        $(rowContainer).attr("value", game.title);
+        $(rowContainer).attr("class", "row");
+
+        var positioner = document.createElement("div");
+        $(positioner).attr("class", "col-xs-offset-1 col-xs-8 col-xs-offset-3");
+
+        var well = document.createElement("div");
+        $(well).attr("class", "row well custom-well");
+
+        var leftPart = document.createElement("div");
+        $(leftPart).attr("class", "col-xs-3");
+
+        var image = document.createElement("img");
+        $(image).attr("src", "img/thumbnails/" + game.thumbnail);
+        $(image).attr("class", "img-responsive");
+        $(image).attr("alt", "Thumbnail");
+        $(image).error(function () {
+            $(this).attr('src', "http://placehold.it/256x256");
+        });
+
+        $(leftPart).append(image);
+
+        var rightPart = document.createElement("div");
+        $(rightPart).attr("class", "col-xs-9");
+
+        var userLink = document.createElement("h4");
+        $(userLink).html("<a class='theme-color' href='game.html?title=" + game.title + "'>" + game.title + "</a>");
+
+        var gameGenre = document.createElement("h6");
+        $(gameGenre).html(game.genre);
+
+        $(rightPart).append(userLink);
+        $(rightPart).append(gameGenre);
+        $(rightPart).append("<h6>" + game.mode + "</h6>");
+        $(rightPart).append("<h6>" + game.publisher + "</h6>");
+        var publishers = "";
+        for (var i = 0; i < game.platforms.length; i++) publishers += game.platforms[i] + ", ";
+        publishers = publishers.slice(0, -2);
+        $(rightPart).append("<h6>" + publishers + "</h6>");
 
         $(well).html(leftPart);
         $(well).append(rightPart);
@@ -179,12 +254,14 @@
             },
 
             updateHeader: function () {
-                view.$pageCounterHeader.empty().append("Current page: " + model.currentPage + " of " + model.totalPages);
+                
 
                 if (model.dataCount === 0) {
                     view.$dataCounterHeader.empty().append("No items match the selected filters.");
+                    view.$pageCounterHeader.empty().append("No pages to display.");
                 }
                 else {
+                    view.$pageCounterHeader.empty().append("Current page: " + model.currentPage + " of " + model.totalPages);
                     view.$dataCounterHeader.empty().append("Displaying results: " + ((model.currentPage - 1) * model.itemsPerPage + 1) +
                     "-" + Math.min(model.currentPage * model.itemsPerPage, model.dataCount) + " of " + model.dataCount);
                 }
@@ -216,7 +293,7 @@
                 var targetPage = target.text();
 
                 model.currentPage = targetPage;
-                requestNodes(currLabel, currFilter);
+                requestNodes();
 
                 if (targetPos == 1) {
                     var pagesToLeft = targetPage - 1;
