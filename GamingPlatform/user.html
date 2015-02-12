@@ -33,7 +33,7 @@
                 <div class="well">
                     <ul class="nav nav-pills nav-stacked" id="user-tabs">
                         <li class="active"><a id="tab-user-panel" href="#user-panel">User Panel</a></li>
-                        <li><a id="tab-profile" href="#profile">Games</a></li>
+                        <li><a id="tab-games" href="#games">Games</a></li>
                         <li><a id="tab-friends" href="#friends">Friends</a></li>
                         <li><a id="tab-wall" class="hide" href="#wall">Wall</a></li>
                         <li><a id="tab-friend-requests" class="hide" href="#friend-requests">Friend Requests</a></li>
@@ -146,10 +146,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade container-fluid" id="profile">Games</div>
+                    <div class="tab-pane fade container-fluid" id="games">
+                        <h3 class="italic">No games to display at the moment.</h3>
+                    </div>
 
                     <div class="tab-pane fade container-fluid" id="friends">
-                        <h3 class="italic">You haven't made any friends yet.</h3>
+                        <h3 class="italic">No friends to display at the moment.</h3>
                     </div>
 
                     <div class="tab-pane fade container-fluid" id="wall">
@@ -167,6 +169,23 @@
                     <div class="tab-pane fade container-fluid" id="friend-requests">
                         <h3 class="italic">No pending friend requests to display.</h3>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mutual-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Mutual Friends</h4>
+                </div>
+                <div id="mutual-modal-body" class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

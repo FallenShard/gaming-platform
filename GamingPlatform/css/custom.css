@@ -159,3 +159,14 @@ input[type="color"]:focus,
 /**{
     border:red 1px solid;
 }*/
+
+.row.pull-bottom {
+  display: table-cell;
+  vertical-align: bottom;
+  float: none;
+}
+
+.game-item-button-fix {
+    position: absolute;
+    bottom: -80px;
+}

@@ -177,13 +177,13 @@
         var rightPart = document.createElement("div");
         $(rightPart).attr("class", "col-xs-9");
 
-        var userLink = document.createElement("h4");
-        $(userLink).html("<a class='theme-color' href='game.html?title=" + game.title + "'>" + game.title + "</a>");
+        var gameLink = document.createElement("h4");
+        $(gameLink).html("<a class='theme-color' href='game.html?title=" + game.title + "'>" + game.title + "</a>");
 
         var gameGenre = document.createElement("h6");
         $(gameGenre).html(game.genre);
 
-        $(rightPart).append(userLink);
+        $(rightPart).append(gameLink);
         $(rightPart).append(gameGenre);
         $(rightPart).append("<h6>" + game.mode + "</h6>");
         $(rightPart).append("<h6>" + game.publisher + "</h6>");
@@ -191,6 +191,53 @@
         for (var i = 0; i < game.platforms.length; i++) publishers += game.platforms[i] + ", ";
         publishers = publishers.slice(0, -2);
         $(rightPart).append("<h6>" + publishers + "</h6>");
+
+        $(well).html(leftPart);
+        $(well).append(rightPart);
+
+        $(positioner).append(well);
+        $(rowContainer).append(positioner);
+
+        return rowContainer;
+    }
+
+    function buildDeveloperView(dev) {
+        var rowContainer = document.createElement("div");
+        $(rowContainer).attr("value", dev.name);
+        $(rowContainer).attr("class", "row");
+
+        var positioner = document.createElement("div");
+        $(positioner).attr("class", "col-xs-offset-1 col-xs-8 col-xs-offset-3");
+
+        var well = document.createElement("div");
+        $(well).attr("class", "row well custom-well");
+
+        var leftPart = document.createElement("div");
+        $(leftPart).attr("class", "col-xs-3");
+
+        var image = document.createElement("img");
+        $(image).attr("src", "img/logos/" + dev.logo);
+        $(image).attr("class", "img-responsive");
+        $(image).attr("alt", "Thumbnail");
+        $(image).error(function () {
+            $(this).attr('src', "http://placehold.it/256x256");
+        });
+
+        $(leftPart).append(image);
+
+        var rightPart = document.createElement("div");
+        $(rightPart).attr("class", "col-xs-9");
+
+        var devLink = document.createElement("h4");
+        $(devLink).html("<a class='theme-color' href='developer.html?name=" + dev.name + "'>" + dev.name + "</a>");
+
+        var devLoc = document.createElement("h6");
+        $(devLoc).html(dev.location);
+
+        $(rightPart).append(devLink);
+        $(rightPart).append(devLoc);
+        $(rightPart).append("<h6>" + dev.owner + "</h6>");
+        $(rightPart).append("<h6><a href='http://" + dev.website + "'>" + dev.website + "</a></h6>");
 
         $(well).html(leftPart);
         $(well).append(rightPart);

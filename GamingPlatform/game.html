@@ -162,34 +162,13 @@
                 </div>
                 <!--Game ownership-->
                 <div class="row">
-                    <div id="game-store" class="user-tools navbar-collapse collapse">
-                        <div class="navbar-right" style="padding-right: 15px;">
-                            <button id="go-to-profile-button" type="button" class="user-tools non-owner-tools btn btn-primary navbar-btn">Visit the store</button>
-                            <span id="owner-span" class="user-tools owner-tools theme-color-green italic">You already own this game<span class="glyphicon glyphicon-ok glyph-class"></span></span>
-                        </div>
+                    <div class="col-xs-12 text-center">
+                        <button id="buy-button" type="button" data-loading-text="Game added to collection!" class="btn btn-success">Add to Collection</button>
+                        <h4 id="owner-text" class="theme-color-green italic">
+                            You already own this game&nbsp;
+                            <span class="glyphicon glyphicon-ok glyph-class"></span>
+                        </h4>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!--Add review modal-->
-    <div id="add-review-modal" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title">Add a review</h4>
-                </div>
-                <div class="modal-body container-fluid">
-                    <form>
-                        <label for="inputReview">Review</label>
-                        <input type="text" id="inputReview" class="form-control" placeholder="Review" required autofocus>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <a href="#" data-dismiss="modal" class="btn btn-default">Close</a>
-                    <a href="#" id="submit-button" class="btn btn-primary">Submit</a>
                 </div>
             </div>
         </div>

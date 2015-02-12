@@ -269,21 +269,100 @@ CREATE (dev1:Developer
         { name: "CD Projekt RED",
           location: "Warsaw, Poland",
           owner: "CD Projekt",
-          website: "en.cdprojektred.com/",
+          website: "en.cdprojektred.com",
           logo: "cdprojektred.jpg"
-        })
-        
+        })     
 CREATE (dev2:Developer
         { name: "Valve Corporation",
           location: "Bellevue, Washington, US",
           owner: "Self-owned",
-          website: "www.valvesoftware.com/",
+          website: "www.valvesoftware.com",
           logo: "valve.jpg"
         })
         
+create (n:Developer 
+        { name : 'Blizzard Entertainment',
+          location : 'Irvine, California, United States',
+          owner : 'Activision Blizzard',
+          website : 'www.blizzard.com',
+          logo: 'img/developers/blizzard.png'
+        })
+        
+//Games
+create (n1:Game { title : 'Warcraft III: Reign of Chaos',
+		 description : "Warcraft III: Reign of Chaos is a high fantasy real-time strategy video game released by Blizzard Entertainment on July 3, 2002 in the U.S. It is the second sequel to Warcraft: Orcs & Humans, and it is the third game set in the Warcraft fictional Universe",
+		 genre : 'Real-Time Strategy',
+		 mode : 'Single-Player and Multi-Player',
+		 publisher : 'Blizzard Entertainment',
+		 platforms : [ 'Windows', 'Mac OS X' ],
+		 releaseDate : '1025654400000',
+		 thumbnail : 'wc3roc.png',
+		 images : [ 'wc3roc1.jpg', 'wc3roc2.jpg', 'wc3roc3.jpg' ]})
+
+create (n2:Game { title : 'Warcraft III: The Frozen Throne',
+		 description : "Warcraft III: The Frozen Throne is a real-time strategy computer game by Blizzard Entertainment. It is the official expansion pack to Warcraft III: Reign of Chaos, requiring Reign of Chaos to play",
+		 genre : 'Real-Time Strategy',
+		 mode : 'Single-Player and Multi-Player',
+		 publisher : 'Blizzard Entertainment',
+		 platforms : [ 'Windows', 'Mac OS X'],
+		 releaseDate : '1057017600000',
+		 thumbnail : 'wc3tft.png',
+		 images : ['wc3tft1.jpg', 'wc3tft2.jpg', 'wc3tft3.jpg' ]})
+
+create (n3:Game { title : 'Starcraft',
+		 description : "StarCraft is a military science fiction real-time strategy video game. Set in a fictitious timeline during the Earth's 25th century, the game revolves around three species fighting for dominance in a distant part of the Milky Way galaxy known as the Koprulu Sector.",
+		 genre : 'Real-Time Strategy',
+		 mode : 'Single-Player and Multi-Player',
+		 publisher : 'Blizzard Entertainment',
+		 platforms : [ 'Windows', 'Mac OS X', 'Nintendo' ],
+		 releaseDate : '891302400000',
+		 thumbnail : 'sc.png',
+		 images : ['sc1.jpg', 'sc2.jpg', 'sc3.jpg' ]})
+
+create (n4:Game { title : 'StarCraft II: Wings of Liberty',
+		 description : "StarCraft II: Wings of Liberty is a military science fiction real-time strategy video game. The game revolves around three species: the Terrans, human exiles from Earth; the Zerg, a super-species of assimilated life forms; and the Protoss, a technologically advanced species with vast mental powers.",
+		 genre : 'Real-Time Strategy',
+		 mode : 'Single-Player and Multi-Player',
+		 publisher : 'Blizzard Entertainment',
+		 platforms : [ 'Windows', 'Mac OS X' ],
+		 releaseDate : '1280188800000',
+		 thumbnail : 'sc2.png',
+		 images : [ 'sc21.jpg', 'sc22.jpg', 'sc23.jpg' ]})
+
+create (n5:Game { title : 'Diablo III',
+		 description : "Diablo III is an action role-playing hack and slash video game. In the game, players choose one of six character classes—Barbarian, Crusader, Demon Hunter, Monk, Witch Doctor or Wizard—and are tasked with defeating the Lord of Terror, Diablo.",
+		 genre : 'Action Role-Playing Hack and Slash',
+		 mode : 'Multi-Player',
+		 publisher : 'Blizzard Entertainment',
+		 platforms : [ 'Windows', 'Mac OS X' ],
+		 releaseDate : '1337040000000',
+		 thumbnail : 'diablo3.png',
+		 images : [ 'diablo31.jpg', 'diablo32.jpg', 'diablo33.jpg' ]})
+
+create (n6:Game { title : 'World of Warcraft',
+		 description : "World of Warcraft (WoW) is a massively multiplayer online role-playing game (MMORPG) created in 2004. World of Warcraft takes place within the Warcraft world of Azeroth, approximately four years after the events at the conclusion of Blizzard's previous Warcraft release, Warcraft III: The Frozen Throne.",
+		 genre : 'Massively Multi-Player Online Role-Playing Game',
+		 mode : 'Multi-Player',
+		 publisher : 'Blizzard Entertainment',
+		 platforms : [ 'Windows', 'Mac OS X' ],
+		 releaseDate : '1337040000000',
+		 thumbnail : 'wow.png',
+		 images : [ 'wow1.jpg', 'wow2.jpg', 'wow3.jpg' ]})
+
+create (n7:Game { title : 'Counter-Strike',
+		 description : "Counter-Strike is a first-person shooter video game developed by Valve Corporation. Set in various locations around the globe, players assume the roles of members of combating teams that include counter-terrorists and terrorists. During each round of gameplay, the two teams are tasked with defeating the other by the means of either achieving the map's objectives, or else killing all of the enemy combatants. Each player may customize their arsenal of weapons and accessories at the beginning of every match, with currency being earned after the end of each round.",
+		 genre : 'First-Person Shooter',
+		 mode : 'Multi-Player',
+		 publisher : 'Valve Corporation',
+		 platforms : [ 'Windows', 'Mac OS X', 'Linux' ],
+		 releaseDate : '929750400000',
+		 thumbnail : 'cs.png',
+		 images : [ 'cs1.jpg', 'cs2.jpg', 'cs3.jpg' ]
+         })
+     
 MATCH (dev:Developer), (game:Game)
 WHERE (dev.name = "CD Projekt RED") AND (game.title = "The Witcher 2: Assassins of Kings")
-CREATE dev-[:DEVELOPS]->game        
+CREATE dev-[:DEVELOPS]->game
 
 MATCH (dev:Developer), (game:Game)
 WHERE (dev.name = "Valve Corporation") AND (game.title = "Dota 2")

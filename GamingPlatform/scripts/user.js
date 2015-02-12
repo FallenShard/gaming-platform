@@ -72,6 +72,7 @@
         friendRequests.init();
         friendList.init();
         wall.init();
+        games.init();
 
         if (activeUser !== null) {
             if (activeUser.username === openedUser.username || activeUser.status == "Admin") {
@@ -560,20 +561,56 @@
         var numberOfFriends = 0;
 
         function publicInit() {
-            $.ajax({
-                type: "GET",
-                url: "Service.svc/GetFriends",
-                data: { username: openedUser.username },
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                processData: true,
-                success: function (receivedData) {
-                    onFriendsSuccess(receivedData);
-                },
-                error: function (result) {
-                    console.log("Error performing ajax " + result);
+            if (activeUser) {
+                if (activeUser.username === openedUser.username) {
+                    $.ajax({
+                        type: "GET",
+                        url: "Service.svc/GetFriendsWithMutual",
+                        data: { username: openedUser.username },
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        processData: true,
+                        success: function (receivedData) {
+                            onFriendsAndMutualSuccess(receivedData);
+                        },
+                        error: function (result) {
+                            console.log("Error performing ajax " + result);
+                        }
+                    });
                 }
-            });
+                else {
+                    $.ajax({
+                        type: "GET",
+                        url: "Service.svc/GetFriends",
+                        data: { username: openedUser.username },
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        processData: true,
+                        success: function (receivedData) {
+                            onFriendsSuccess(receivedData);
+                        },
+                        error: function (result) {
+                            console.log("Error performing ajax " + result);
+                        }
+                    });
+                }
+            }
+            else {
+                $.ajax({
+                    type: "GET",
+                    url: "Service.svc/GetFriends",
+                    data: { username: openedUser.username },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    processData: true,
+                    success: function (receivedData) {
+                        onFriendsSuccess(receivedData);
+                    },
+                    error: function (result) {
+                        console.log("Error performing ajax " + result);
+                    }
+                });
+             }
         }
 
         function publicAddFriend(friend) {
@@ -618,27 +655,66 @@
                 numberOfFriends = receivedData.length;
             }
 
-            var friendRow = null;
             for (var i = 0; i < receivedData.length; i++) {
                 try {
                     var item = JSON.parse(receivedData[i]);
+                    
                 }
                 catch (exception) {
                     console.log("Error parsing JSON!");
                     continue;
                 }
 
-                var friendView = buildFriendView(item);
+                var friendView = buildFriendView(item, null);
 
                 $("#friend-row").append(friendView);
             }
 
             if (!activeUser || !(activeUser.username === openedUser.username || activeUser.status == "Admin"))
                 $(".remove-friend-button").remove();
-            console.log(receivedData);
         }
 
-        function buildFriendView(friend) {
+        function onFriendsAndMutualSuccess(receivedData) {
+            var $friends = $("#friends");
+
+            if (receivedData.length > 0) {
+                $("#tab-friends").attr("value", receivedData.length);
+                $("#tab-friends").html("Friends (" + receivedData.length + ")");
+                $friends.empty();
+                var friendRow = document.createElement("div");
+                $(friendRow).attr("class", "row");
+                $(friendRow).attr("id", "friend-row");
+                $friends.html(friendRow);
+
+                numberOfFriends = receivedData.length;
+            }
+
+            var recData = [];
+            for (var k = 0; k < receivedData.length; k++) {
+                recData.push(JSON.parse(receivedData[k]));
+            }
+
+            recData.sort(function (a, b) { return a.mutual.length < b.mutual.length; });
+
+            for (var i = 0; i < receivedData.length; i++) {
+                try {
+                    var item = recData[i];
+                }
+                catch (exception) {
+                    console.log("Error parsing JSON!");
+                    continue;
+                }
+
+                var friendView = buildFriendView(item.friend, item.mutual);
+
+                $("#friend-row").append(friendView);
+            }
+
+            if (!activeUser || !(activeUser.username === openedUser.username || activeUser.status == "Admin"))
+                $(".remove-friend-button").remove();
+        }
+
+        function buildFriendView(friend, mutuals) {
             var positioner = document.createElement("div");
             $(positioner).attr("class", "col-xs-4");
             $(positioner).attr("style", "padding: 0 20px;");
@@ -680,6 +756,33 @@
             $rightPart.attr("class", "col-xs-7");
             $rightPart.html("<h4><a class='theme-color' href='/user.html?username=" + friend.username + "'>" + friend.username + "</a></h4>");
             $rightPart.append("<h5>" + friend.firstName + " " + friend.lastName + "</h5>");
+
+            if (mutuals && mutuals.length > 0)
+            {
+                var h6 = document.createElement("h6");
+                var a = document.createElement("a");
+                $(a).attr("type", "button");
+                $(a).attr("style", "cursor: pointer;");
+                $(a).attr("data-toggle", "modal");
+                $(a).attr("data-target", "mutual-modal");
+                $(a).html(mutuals.length + " mutual friends");
+
+                $(h6).append(a);
+                $rightPart.append(h6);
+
+                var str = "";
+                for (var i = 0; i < mutuals.length; i++) {
+                    str += "<h4><a href='user.html?username=" + mutuals[i].Data.username + "'>" + mutuals[i].Data.username + "</a></h4><br>";
+                }
+                str.slice(0, -4);
+                
+                $(a).click(function () {
+                    $("#mutual-modal-body").html(str);
+                    $('#mutual-modal').modal('show');
+                })
+
+                console.log(str);
+            }
 
             $(well).html(leftPart);
             $(well).append(rightPart);
@@ -724,6 +827,211 @@
         return {
             init: publicInit,
             addFriend: publicAddFriend
+        }
+    })();
+
+    var games = (function () {
+
+        var noOfGames = 0;
+
+        function publicInit() {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/GetUserGames",
+                data: { username: openedUser.username },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    onGamesSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+        }
+
+        function onGamesSuccess(receivedData) {
+            var $games = $("#games");
+
+            if (receivedData.length > 0) {
+                noOfGames = receivedData.length;
+                $("#tab-games").attr("value", noOfGames);
+                $("#tab-games").html("Games (" + noOfGames + ")");
+                $games.empty();
+
+                var gamesRow = document.createElement("div");
+                $(gamesRow).attr("class", "row");
+                $(gamesRow).attr("id", "games-row");
+                $games.html(gamesRow);
+            }
+
+            for (var i = 0; i < receivedData.length; i++) {
+                try {
+                    var item = JSON.parse(receivedData[i]);
+                }
+                catch (exception) {
+                    console.log("Error parsing JSON!");
+                    continue;
+                }
+
+                var date = new Date(parseInt(item.date.since));
+                var totalHrs = item.date.totalHours;
+                var gameView = buildGameView(item.game, date, totalHrs);
+
+                $("#games-row").append(gameView);
+            }
+
+            if (!activeUser || !(activeUser.username === openedUser.username || activeUser.status == "Admin"))
+                $(".remove-friend-button").remove();
+        }
+
+        function buildGameView(game, dateSince, totalHrs) {
+            var positioner = document.createElement("div");
+            $(positioner).attr("class", "col-xs-6");
+            $(positioner).attr("style", "padding: 0 20px;");
+
+            var well = document.createElement("div");
+            $(well).attr("class", "row well custom-well");
+            $(well).attr("style", "height: 200px;");
+
+            var leftPart = document.createElement("div");
+            $(leftPart).attr("class", "col-xs-4 text-center");
+
+            var image = document.createElement("img");
+            $(image).attr("src", "img/thumbnails/" + game.thumbnail);
+            $(image).attr("class", "img-responsive");
+            $(image).attr("alt", "Profile picture");
+            $(image).error(function () {
+                $(this).attr('src', "http://placehold.it/300x300");
+            });
+            $(leftPart).append(image);
+
+            if (hasRemovalPrivileges()) {
+                var removeButton = document.createElement("button");
+                var $removeButton = $(removeButton);
+                $removeButton.attr("class", "btn btn-xs btn-danger remove-friend-button margin-top-15");
+                $removeButton.html("Remove");
+                $removeButton.attr("type", "button");
+                $removeButton.attr("value", game.title);
+                
+                $removeButton.click(function () {
+                    removeGame(openedUser.username, game.title);
+
+                    $(positioner).hide('fast', function () {
+                        $(positioner).remove();
+                    });
+
+                    noOfGames--;
+                    if (noOfGames > 0)
+                        $("#tab-games").html("Games (" + noOfGames + ")");
+                    else {
+                        $("#tab-games").html("Games");
+                        $("#games").append(noWallPostsHtml);
+                    }
+                });
+                $(leftPart).append(removeButton);
+            }
+
+            var rightPart = document.createElement("div");
+            var $rightPart = $(rightPart);
+            $rightPart.attr("class", "col-xs-7");
+            $rightPart.html("<h4 style='height:40px;'><a class='theme-color' href='/game.html?title=" + game.title + "'>" + game.title + "</a></h4>");
+            $rightPart.append("<h5 style='height:20px;'>" + game.genre + "</h5>");
+
+            var helperRow = document.createElement("div");
+            $(helperRow).attr("class", "row");
+            
+            var leftCol = document.createElement("div");
+            $(leftCol).attr("class", "col-xs-7");
+
+            $(leftCol).append("<h6>" + game.mode + "</h6>");
+            $(leftCol).append("<h6>Added: " + dateSince.toLocaleDateString() + "</h6>");
+            $(leftCol).append("<h6><span id='" + game.title.replace(/ /g, '') + "hours'>" + totalHrs + "</span> hours on track</h6>");
+            $(helperRow).append(leftCol);
+
+            if (activeUser && activeUser.username == openedUser.username)
+            {
+                var rightCol = document.createElement("div");
+                $(rightCol).attr("class", "col-xs-5");
+
+                var playBtn = document.createElement("div");
+                $(playBtn).attr("class", "btn btn-block btn-success pull-right game-item-button-fix");
+                $(playBtn).html("Play");
+                $(playBtn).click(function () {
+                    
+                    var el = $("#" + game.title.replace(/ /g, '') + "hours");
+                    var num = parseInt(el.html());
+                    console.log(el);
+                    num++;
+                    el.html(num);
+                    setPlayTime(activeUser.username, game.title, num);
+                });
+                $(rightCol).append(playBtn);
+
+                $(helperRow).append(rightCol);
+            }
+
+            $(rightPart).append(helperRow);
+
+            $(well).html(leftPart);
+            $(well).append(rightPart);
+
+            $(positioner).append(well);
+
+            return positioner;
+        }
+
+        function setPlayTime(username, gameTitle, num) {
+            console.log(num);
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/SetPlayTime",
+                data: { username: username, title: gameTitle, hours: num },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    console.log("Added time successfully!");
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+        }
+
+        function hasRemovalPrivileges() {
+            var hasPrivileges = false;
+            if (activeUser) {
+                if (activeUser.username === openedUser.username)
+                    hasPrivileges = true;
+
+                if (activeUser.status === "Admin")
+                    hasPrivileges = true;
+            }
+
+            return hasPrivileges;
+        }
+
+        function removeGame(username, game) {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/RemoveUserPlaysGame",
+                data: { username: username, title: game },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    console.log("Removed game successfully!");
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+        }
+
+        return {
+            init: publicInit
         }
     })();
 
@@ -865,7 +1173,6 @@
         }
 
         function onFriendNamesSuccess(receivedData) {
-            console.log(receivedData);
             var hasInput = false;
 
             if (activeUser)

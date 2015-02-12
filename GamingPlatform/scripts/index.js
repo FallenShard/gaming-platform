@@ -5,8 +5,6 @@
         $("#header-div").load("header.html", function () {
             headerBar.init();
         });
-
-
     }
 
     $(document).ready(documentInit);

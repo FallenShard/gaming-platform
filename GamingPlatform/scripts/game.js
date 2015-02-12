@@ -21,6 +21,8 @@
         $("#header-div").load("header.html", function () {
             headerBar.init();
         });
+        $("#owner-text").hide();
+        $("#buy-button").hide();
 
         initModel();
     }
@@ -71,6 +73,7 @@
         // Other information(developer, rating system, has/doesn't have game
         ratingSystem.init();
         reviews.init();
+        storeInteraction.init();
 
         if (activeUser !== null) {
             //gamePanelBasic.showAddReviewButton();
@@ -213,8 +216,11 @@
             },
 
             onGameDeveloperSuccess: function (receivedData) {
-                gameDeveloper = JSON.parse(receivedData);
-                view.setDeveloperData(gameDeveloper);
+                if (receivedData != "none")
+                {
+                    gameDeveloper = JSON.parse(receivedData);
+                    view.setDeveloperData(gameDeveloper);
+                }
             }
         };
 
@@ -326,7 +332,6 @@
         }
 
         function onGameRatingSuccess(receivedData) {
-            console.log(receivedData);
             var obj = JSON.parse(receivedData);
             ratingCount = obj.count;
             ratingSum = obj.sum;
@@ -384,7 +389,6 @@
         }
 
         function onRemoveRatingSuccess(receivedData) {
-            console.log(receivedData);
             updateGlobalRatingView();
             updateUserRatingView(true);
             $("#remove-rating-btn").hide();
@@ -429,21 +433,22 @@
 
         function publicInit() {
             $reviewInputDiv = $("#review-input-div");
-            
-            $.ajax({
-                type: "GET",
-                url: "Service.svc/GetUserReview",
-                data: { username: activeUser.username, title: openedGame.title },
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                processData: true,
-                success: function (receivedData) {
-                    onUserReviewSuccess(receivedData);
-                },
-                error: function (result) {
-                    console.log("Error performing ajax " + result);
-                }
-            });
+            if (activeUser) {
+                $.ajax({
+                    type: "GET",
+                    url: "Service.svc/GetUserReview",
+                    data: { username: activeUser.username, title: openedGame.title },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    processData: true,
+                    success: function (receivedData) {
+                        onUserReviewSuccess(receivedData);
+                    },
+                    error: function (result) {
+                        console.log("Error performing ajax " + result);
+                    }
+                });
+            }
 
             $.ajax({
                 type: "GET",
@@ -675,12 +680,68 @@
         }
     })();
 
-    var addToCollection = (function () {
+    var storeInteraction = (function () {
+
+        var $ownerText = null;
+        var $buyButton = null;
 
         function publicInit() {
+            $ownerText = $("#owner-text");
+            $buyButton = $("#buy-button");
+            $ownerText.hide();
+            $buyButton.hide();
 
+            if (activeUser) {
+                $.ajax({
+                    type: "GET",
+                    url: "Service.svc/GetUserPlaysGame",
+                    data: { username: activeUser.username, title: openedGame.title },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    processData: true,
+                    success: function (receivedData) {
+                        onUserToGameSuccess(receivedData);
+                    },
+                    error: function (result) {
+                        console.log("Error performing ajax " + result);
+                    }
+                });
+            }
+
+            $buyButton.click(function () {
+                requestGameOwnership();
+                $(this).button('loading');
+                $(this).html("Game added to collection!");
+            });
         }
 
+        function onUserToGameSuccess(receivedData) {
+            if (receivedData === "owns") {
+                $ownerText.fadeIn('slow');
+            }
+            else {
+                $buyButton.fadeIn('slow');
+            }
+        }
+
+        function requestGameOwnership() {
+            var date = new Date();
+            var utcMilis = date.getTime().toString();
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/CreateUserPlaysGame",
+                data: { username: activeUser.username, title: openedGame.title, time: utcMilis },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    onUserToGameSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+        }
 
         return {
             init: publicInit

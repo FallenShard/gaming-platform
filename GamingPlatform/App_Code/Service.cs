@@ -258,6 +258,35 @@ public class Service : IService
         return friends.ToArray();
     }
 
+
+    public string[] GetFriendsWithMutual(string username)
+    {
+        IList<string> friends = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var friendNodes = client.Cypher
+            .Match("(me:User {username: {myname}})-[:IS_FRIENDS_WITH]-(friend:User)")
+            .OptionalMatch("(me:User {username: {myname}})-[:IS_FRIENDS_WITH]-(friend:User)-[:IS_FRIENDS_WITH]-(fof:User)")
+            .WithParam("myname", username)
+            .Return((friend, fof) => new
+            {
+                friend = friend.As<User>(),
+                mutual = fof.CollectAs<User>()
+            })
+            .Results;
+
+        //friendNodes.OrderByDescending(x => x.mutual.Count());
+
+        foreach (var entry in friendNodes)
+        {
+            friends.Add(toJson(entry));
+        }
+
+        return friends.ToArray();
+    }
+
     public string[] GetFriendNames(string username)
     {
         IList<string> friendNames = new List<string>();
@@ -553,6 +582,55 @@ public class Service : IService
         return toJson(newGame);
     }
 
+    public string EditGame(Game editedGame)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(game:Game)")
+            .Where((Game game) => game.title == editedGame.title)
+            .Set("game = {editedGame}")
+            .WithParam("editedUser", editedGame)
+            .ExecuteWithoutResults();
+
+        return toJson(editedGame);
+    }
+
+    public string RemoveGame(string title)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        try
+        {
+            client.Cypher
+            .OptionalMatch("(g:Game)")
+            .Where((Game g) => g.title == title)
+            .Delete("g")
+            .ExecuteWithoutResults();
+        }
+        catch (Exception)
+        {
+            //
+        }
+
+        try
+        {
+            client.Cypher
+            .Match("(g:Game)-[r]-()")
+            .Where((Game g) => g.title == title)
+            .Delete("g, r")
+            .ExecuteWithoutResults();
+        }
+        catch (Exception)
+        {
+
+        }
+
+        return "Success";
+    }
+
     public string GetGameByTitle(string title)
     {
         string data = "failed";
@@ -782,9 +860,10 @@ public class Service : IService
         return toJson(newDeveloper);
     }
 
+    #endregion
 
-
-    public string addNewStore(string location, string address, string dateOpened)
+    
+    public string AddNewDeveloper(Developer newDeveloper)
     {
         string retVal = "failed";
 
@@ -792,69 +871,271 @@ public class Service : IService
         client.Connect();
 
         var results = client.Cypher
-            .Match("(store:Store)")
-            .Where((Store store) => store.address == address)
-            .Return(store => store.As<Store>()).Results;
+            .Match("(developer:Developer)")
+            .Where((Developer developer) => developer.name == newDeveloper.name)
+            .Return(developer => developer.As<Developer>()).Results;
 
-        // There's already a store with that address
+        // There's already a game with that title
         if (results.Count() > 0)
             return retVal;
 
-        Store newStore = new Store();
-        newStore.location = location;
-        newStore.address = address;
-        newStore.dateOpened = dateOpened;
-
         client.Cypher
-            .Create("(store:Store {newStore})")
-            .WithParam("newStore", newStore)
+            .Create("(developer:Developer {newDeveloper})")
+            .WithParam("newDeveloper", newDeveloper)
             .ExecuteWithoutResults();
 
-        return toJson(newStore);
+        return toJson(newDeveloper);
+    }
+
+    public string EditDeveloper(Developer editedDeveloper)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(developer:Developer)")
+            .Where((Developer developer) => developer.name == editedDeveloper.name)
+            .Set("developer = {editedDeveloper}")
+            .WithParam("editedDeveloper", editedDeveloper)
+            .ExecuteWithoutResults();
+
+        return toJson(editedDeveloper);
+    }
+
+    public string RemoveDeveloper(string name)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        try
+        {
+            client.Cypher
+            .OptionalMatch("(dev:Developer)")
+            .Where((Developer dev) => dev.name == name)
+            .Delete("dev")
+            .ExecuteWithoutResults();
+        }
+        catch (Exception)
+        {
+            //
+        }
+
+        try
+        {
+            client.Cypher
+            .Match("(dev:Developer)-[r]-()")
+            .Where((Developer dev) => dev.name == name)
+            .Delete("dev, r")
+            .ExecuteWithoutResults();
+        }
+        catch (Exception)
+        {
+
+        }
+
+        return "Success";
+    }
+
+    public string GetDeveloperByName(string name)
+    {
+        string data = "failed";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(developer:Developer)")
+            .Where((Developer developer) => developer.name == name)
+            .Return(developer => developer.As<Developer>()).Results;
+
+        if (results.Count() == 1)
+            data = toJson(results.First());
+
+        return data;
+    }
+
+    #region Game Ownership operations
+
+    public string CreateUserPlaysGame(string username, string title, string time)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(game:Game)", "(user:User)")
+            .Where((Game game) => game.title == title)
+            .AndWhere((User user) => user.username == username)
+            .CreateUnique("user-[:PLAYS {since: {time}, totalHours: {totalHours}}]->game")
+            .WithParam("time", time)
+            .WithParam("totalHours", 0)
+            .ExecuteWithoutResults();
+
+        return "success";
+    }
+
+    public string RemoveUserPlaysGame(string username, string title)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(user:User)-[r:PLAYS]-(game:Game)")
+            .Where((User user) => user.username == username)
+            .AndWhere((Game game) => game.title == title)
+            .Delete("r")
+            .ExecuteWithoutResults();
+
+        return "success";
+    }
+
+    public string GetUserPlaysGame(string username, string title)
+    {
+        string data = "nothing";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var res = client.Cypher
+            .Match("(game:Game)<-[r:PLAYS]-(user:User)")
+            .Where((Game game) => game.title == title)
+            .AndWhere((User user) => user.username == username)
+            .Return(() => Return.As<int>("count(r)"))
+            .Results.Single();
+
+        if (res > 0)
+            data = "owns";
+
+        return data;
+    }
+
+    public string[] GetUserGames(string username)
+    {
+        IList<string> games = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var gameNodes = client.Cypher
+            .Match("(user:User)-[r:PLAYS]->(game:Game)")
+            .Where((User user) => user.username == username)
+            .Return((game, r) => new
+            {
+                game = game.As<Game>(),
+                date = r.As<Owns>()
+            })
+            .Results;
+
+        gameNodes = gameNodes.OrderBy(x => x.game.title);
+
+        foreach (var game in gameNodes)
+        {
+            games.Add(toJson(game));
+        }
+
+        return games.ToArray();
+    }
+
+    public string SetPlayTime(string username, string title, int hours)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(user:User)-[r:PLAYS]->(game:Game)")
+            .Where((User user) => user.username == username)
+            .AndWhere((Game game) => game.title == title)
+            .Set("r.totalHours = {hrs}")
+            .WithParam("hrs", hours)
+            .ExecuteWithoutResults();
+
+        return "success";
+    }
+
+    public string[] GetDeveloperGames(string name)
+    {
+        IList<string> games = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var gameNodes = client.Cypher
+            .Match("(dev:Developer)-[r:DEVELOPS]->(game:Game)")
+            .Where((Developer dev) => dev.name == name)
+            .Return(game => game.As<Game>())
+            .Results;
+
+        gameNodes = gameNodes.OrderBy(x => x.title);
+
+        foreach (var game in gameNodes)
+        {
+            games.Add(toJson(game));
+        }
+
+        return games.ToArray();
     }
 
     #endregion
 
-    #region Link adding
+    #region Admin list calls
 
-    public string addNewSells(string storeAddress, string gameTitle, string price, string discount, string quantity)
+    public string[] GetAllUsers()
     {
-        return string.Empty;
+        IList<string> users = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var userNodes = client.Cypher
+            .Match("(user:User)")
+            .Return(() => Return.As<User>("user"))
+            .Results;
+
+        foreach (var user in userNodes)
+        {
+            users.Add(toJson(user));
+        }
+
+        return users.ToArray();
     }
 
-    public string addNewDevelops(string developerName, string gameTitle)
+    public string[] GetAllGames()
     {
-        return string.Empty;
+        IList<string> games = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var gameNodes = client.Cypher
+            .Match("(game:Game)")
+            .Return(() => Return.As<Game>("game"))
+            .Results;
+
+        foreach (var game in gameNodes)
+        {
+            games.Add(toJson(game));
+        }
+
+        return games.ToArray();
     }
 
-    public string addNewRates(string username, string gameTitle, string rating)
+    public string[] GetAllDevelopers()
     {
-        return string.Empty;
-    }
+        IList<string> devs = new List<string>();
 
-    public string addNewReviews(string username, string gameTitle, string content, string date)
-    {
-        return string.Empty;
-    }
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
 
-    public string addNewPlays(string username, string gameTitle, string hoursTotal, string dateSince)
-    {
-        return string.Empty;
-    }
+        var devNodes = client.Cypher
+            .Match("(dev:Developer)")
+            .Return(() => Return.As<Developer>("dev"))
+            .Results;
 
-    public string addNewIsFriendsWith(string username1, string username2, string dateSince)
-    {
-        return string.Empty;
-    }
+        foreach (var dev in devNodes)
+        {
+            devs.Add(toJson(dev));
+        }
 
-    public string addNewPosts(string username, string content, string timestamp)
-    {
-        return string.Empty;
-    }
-
-    public string addNewHas(string username, string content, string timestamp)
-    {
-        return string.Empty;
+        return devs.ToArray();
     }
 
     #endregion

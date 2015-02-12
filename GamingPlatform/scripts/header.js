@@ -17,8 +17,8 @@
             window.location.replace("search.html?label=User");
         });
 
-        $("#stores-button").click(function () {
-            window.location.replace("stores.html");
+        $("#trivia-button").click(function () {
+            window.location.replace("trivia.html");
         });
     }
 
@@ -62,6 +62,10 @@
 
             $("#go-to-profile-button").click(function () {
                 window.location.replace("user.html?username=" + model.userData.username);
+            });
+
+            $("#admin-button").click(function () {
+                window.location.replace("admin.html");
             });
 
             $("#loginPassword").keyup(function (event) {
@@ -194,6 +198,7 @@
 
             $(".user-tools").hide();
             $(".guest-tools").hide();
+            $(".admin-tools").hide();
             $("#log-in-alert").hide();
             $("#sign-up-alert").hide();
 
@@ -216,7 +221,11 @@
             $("#welcome-span").html(model.userData.username);
             $("#navbar-img").attr("src", "img/avatars/" + model.userData.avatarImage);
             if (model.userData.status === "Admin")
+            {
                 $("#welcome-span").addClass("admin-color");
+                $(".admin-tools").show();
+            }
+                
             else if (model.userData.status === "Contributor")
                 $("#welcome-span").addClass("contributor-color");
         },
