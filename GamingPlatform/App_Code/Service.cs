@@ -510,6 +510,24 @@ public class Service : IService
         return toJson(editedDeveloper);
     }
 
+    public string GetDeveloperByName(string name)
+    {
+        string data = "failed";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var results = client.Cypher
+            .Match("(developer:Developer)")
+            .Where((Developer developer) => developer.name == name)
+            .Return(developer => developer.As<Developer>()).Results;
+
+        if (results.Count() == 1)
+            data = toJson(results.First());
+
+        return data;
+    }
+
     #endregion
 
     #region Data adding

@@ -14,5 +14,6 @@ namespace Nodes
         public String location { get; set; }
         public String owner { get; set; }
         public String website { get; set; }
+        public String logo { get; set; }
     } 
 }

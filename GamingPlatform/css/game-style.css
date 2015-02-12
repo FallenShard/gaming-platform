@@ -3,13 +3,13 @@
     height: 150px;
 }
 
+.fixed-width {
+    max-width: 100%;
+}
+
 .center-image {
     margin-left: auto;
     margin-right: auto;
-}
-
-.fixed-width {
-    max-width: 100%;
 }
 
 .owner-tools {

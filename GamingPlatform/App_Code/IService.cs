@@ -159,6 +159,11 @@ public interface IService
                BodyStyle = WebMessageBodyStyle.Bare)]
     string EditDeveloper(Developer editedDeveloper);
 
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string GetDeveloperByName(string name);
+
     #endregion
 
     #region Data adding

@@ -279,17 +279,21 @@
         },
 
         onAddDeveloperSuccess: function (receivedData) {
-            $("#add-developer-alert").show('fast');
+            if (receivedData === "failed")
+                alert("Add new game form contains the following errors: \n - Game with that title already exists");
+            else {
+                $("#add-developer-alert").show('fast');
 
-            model.gameData = JSON.parse(receivedData);
-                
-            setTimeout(function () {
-                $('#add-developer-alert').modal('hide');
-            }, 500);
-            setTimeout(function () {
-                //location.reload(true);
-                //window.location.replace("index.html");
-            }, 1000);
+                model.gameData = JSON.parse(receivedData);
+
+                setTimeout(function () {
+                    $('#add-developer-alert').modal('hide');
+                }, 500);
+                setTimeout(function () {
+                    //location.reload(true);
+                    //window.location.replace("index.html");
+                }, 1000);
+            }
         },
 
         //Editing developer as object
@@ -310,22 +314,18 @@
             });
         },
 
-        onEditDeveloperSuccess: function (receivedData) {
-            if (receivedData === "failed")
-                alert("Edit developer form contains the following errors: \n - Game with that title already exists");
-            else {
-                $("#edit-developer-alert").show('fast');
+        onEditDeveloperSuccess: function (receivedData) {       
+            $("#edit-developer-alert").show('fast');
 
-                model.gameData = JSON.parse(receivedData);
+            model.gameData = JSON.parse(receivedData);
                 
-                setTimeout(function () {
-                    $('#edit-developer-alert').modal('hide');
-                }, 500);
-                setTimeout(function () {
-                    //location.reload(true);
-                    //window.location.replace("index.html");
-                }, 1000);
-            }
+            setTimeout(function () {
+                $('#edit-developer-alert').modal('hide');
+            }, 500);
+            setTimeout(function () {
+                //location.reload(true);
+                //window.location.replace("index.html");
+            }, 1000);
         }
     };
 
@@ -561,6 +561,7 @@
             newDeveloperData.location = $("#developerLocationInput").val();
             newDeveloperData.owner = $("#ownerInput").val();
             newDeveloperData.website = $("#websiteInput").val();
+            newDeveloperData.logo = $("#developerLogoInput").val();
 
             if (this.validateAlphanumeric(newDeveloperData.name))
                 errorMessage += "\n - Name must contain alphanumeric characters only";
@@ -587,6 +588,7 @@
             developerData.location = $("#editDeveloperLocationInput").val();
             developerData.owner = $("#editOwnerInput").val();
             developerData.website = $("#editWebsiteInput").val();
+            developerData.logo = $("#editDeveloperLogoInput").val();
 
             if (this.validateAlphanumeric(developerData.name))
                 errorMessage += "\n - Name must contain alphanumeric characters only";
