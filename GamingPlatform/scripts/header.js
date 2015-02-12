@@ -4,6 +4,7 @@
     function publicInit() {
         view.init();
         controller.init();
+        model.init();
     }
 
     function publicIsUserLoggedIn() {
@@ -16,7 +17,11 @@
 
     var model = {
         loggedIn: false,
-        userData: {}
+        userData: {},
+        //Data for game
+        gameData: {},
+        //Data for developer
+        developerData: {}
     };
 
     var controller = {
@@ -52,6 +57,26 @@
                 if (event.keyCode == 13) {
                     $("#log-in-button").click();
                 }
+            });
+
+            //Adding new game
+            $("#add-game-button").click(function () {
+                view.validateAddGameInput();
+            });
+
+            //Editing game
+            $("#edit-game-button").click(function () {
+                view.validateEditGameInput();
+            });
+
+            //Adding new developer
+            $("#add-developer-button").click(function () {
+                view.validateAddDeveloperInput();
+            });
+
+            //Editing developer
+            $("#edit-developer-button").click(function () {
+                view.validateEditDeveloperInput();
             });
         },
 
@@ -165,6 +190,142 @@
                     window.location.replace("index.html");
                 }, 1000);
             }
+        },
+
+        //Adding new game as object
+        requestAddGame: function (newGameData) {
+            $.ajax({
+                type: "POST",
+                url: "Service.svc/AddNewGame",
+                data: JSON.stringify(newGameData),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    controller.onAddGameSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing POST ajax " + result);
+                }
+            });
+        },
+
+        onAddGameSuccess: function (receivedData) {
+            if (receivedData === "failed")
+                alert("Add new game form contains the following errors: \n - Game with that title already exists");
+            else {
+                $("#add-game-alert").show('fast');
+
+                model.gameData = JSON.parse(receivedData);
+                
+                setTimeout(function () {
+                    $('#add-game-alert').modal('hide');
+                }, 500);
+                setTimeout(function () {
+                    //location.reload(true);
+                    //window.location.replace("index.html");
+                }, 1000);
+            }
+        },
+
+        //Editing game as object
+        requestEditGame: function (gameData) {
+            $.ajax({
+                type: "POST",
+                url: "Service.svc/EditGame",
+                data: JSON.stringify(gameData),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    controller.onEditGameSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing POST ajax " + result);
+                }
+            });
+        },
+
+        onEditGameSuccess: function (receivedData) {
+            $("#edit-game-alert").show('fast');
+
+            model.gameData = JSON.parse(receivedData);
+
+            setTimeout(function () {
+                $('#edit-game-alert').modal('hide');
+            }, 500);
+            setTimeout(function () {
+                //location.reload(true);
+                //window.location.replace("index.html");
+            }, 1000);
+        },
+
+        //Adding new developer as object
+        requestAddDeveloper: function (newDeveloperData) {
+            $.ajax({
+                type: "POST",
+                url: "Service.svc/AddNewDeveloper",
+                data: JSON.stringify(newDeveloperData),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    controller.onAddDeveloperSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing POST ajax " + result);
+                }
+            });
+        },
+
+        onAddDeveloperSuccess: function (receivedData) {
+            $("#add-developer-alert").show('fast');
+
+            model.gameData = JSON.parse(receivedData);
+                
+            setTimeout(function () {
+                $('#add-developer-alert').modal('hide');
+            }, 500);
+            setTimeout(function () {
+                //location.reload(true);
+                //window.location.replace("index.html");
+            }, 1000);
+        },
+
+        //Editing developer as object
+        requestEditDeveloper: function (developerData) {
+            $.ajax({
+                type: "POST",
+                url: "Service.svc/EditDeveloper",
+                data: JSON.stringify(developerData),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    controller.onEditDeveloperSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing POST ajax " + result);
+                }
+            });
+        },
+
+        onEditDeveloperSuccess: function (receivedData) {
+            if (receivedData === "failed")
+                alert("Edit developer form contains the following errors: \n - Game with that title already exists");
+            else {
+                $("#edit-developer-alert").show('fast');
+
+                model.gameData = JSON.parse(receivedData);
+                
+                setTimeout(function () {
+                    $('#edit-developer-alert').modal('hide');
+                }, 500);
+                setTimeout(function () {
+                    //location.reload(true);
+                    //window.location.replace("index.html");
+                }, 1000);
+            }
         }
     };
 
@@ -180,6 +341,10 @@
             $(".guest-tools").hide();
             $("#log-in-alert").hide();
             $("#sign-up-alert").hide();
+            $("#add-game-alert").hide();
+            $("#add-developer-alert").hide();
+            $("#edit-game-alert").hide();
+            $("#edit-developer-alert").hide();
 
             //var glow = ;
             setInterval(function () {
@@ -267,6 +432,13 @@
             return true;
         },
 
+        validateLetters: function (string) {
+            if (/^[A-Za-z]+$/.test(string)) {
+                return false;
+            }
+            return true;
+        },
+
         hasWhiteSpace: function (string) {
             return /\s/g.test(string);
         },
@@ -280,6 +452,154 @@
                     this.monthDays[1] = 29;
                 else
                     this.monthDays[1] = 28;
+            }
+        },
+
+        //Validating new game
+        validateAddGameInput: function () {
+            var errorMessage = "";
+
+            var newGameData = {};
+
+            newGameData.title = $("#titleInput").val();
+            newGameData.description = $("#descriptionInput").val();
+            newGameData.genre = $("#genreInput").val();
+            newGameData.mode = $("#modeInput").val();
+            newGameData.publisher = $("#publisherInput").val();
+            newGameData.platforms = $("#platformsInput").val().split(",");
+            newGameData.thumbnail = $("#thumbnailInput").val();
+            newGameData.images = $("#imagesInput").val().split(",");
+
+            if (this.validateAlphanumeric(newGameData.title))
+                errorMessage += "\n - Title must contain alphanumeric characters only";
+            if (newGameData.title.length > 30 || newGameData.title.length < 8)
+                errorMessage += "\n - Title must be 8-30 characters long";
+            if (newGameData.description.length < 50)
+                errorMessage += "\n - Description must be at least 50 characters long";
+
+            var year = parseInt($("#gameYearInput").val());
+            var month = parseInt($("#gameMonthInput").val());
+            var day = parseInt($("#gameDayInput").val());
+            var date = new Date();
+            date.setHours(0, 0, 0, 0);
+            this.dateValidator.init();
+
+            if (isNaN(year) || year < 0)
+                errorMessage += "\n - Year should be a positive number";
+            if (isNaN(month) || month < 1 || month > 12)
+                errorMessage += "\n - Invalid value for month";
+            else if (isNaN(day) || day < 1 || day > this.dateValidator.monthDays[month - 1])
+                errorMessage += "\n - Invalid value for day";
+
+            if (errorMessage === "") {
+                console.log("Success!");
+                date.setFullYear(year, month - 1, day);
+                newGameData.releaseDate = date.getTime();
+
+                controller.requestAddGame(newGameData);
+            }
+            else {
+                alert("Add new game form contains the following errors: " + errorMessage);
+            }
+        },
+
+        //Validating editet game
+        validateEditGameInput: function () {
+            var errorMessage = "";
+
+            var gameData = {};
+
+            gameData.title = $("#editTitleInput").val();
+            gameData.description = $("#editDescriptionInput").val();
+            gameData.genre = $("#editGenreInput").val();
+            gameData.mode = $("#editModeInput").val();
+            gameData.publisher = $("#editPublisherInput").val();
+            gameData.platforms = $("#editPlatformsInput").val().split(",");
+            gameData.thumbnail = $("#editThumbnailInput").val();
+            gameData.images = $("#editImagesInput").val().split(",");
+
+            if (this.validateAlphanumeric(gameData.title))
+                errorMessage += "\n - Title must contain alphanumeric characters only";
+            if (gameData.title.length > 30 || gameData.title.length < 8)
+                errorMessage += "\n - Title must be 8-30 characters long";
+            if (gameData.description.length < 50)
+                errorMessage += "\n - Description must be at least 50 characters long";
+
+            var year = parseInt($("#editGameYearInput").val());
+            var month = parseInt($("#editGameMonthInput").val());
+            var day = parseInt($("#editGameDayInput").val());
+            var date = new Date();
+            date.setHours(0, 0, 0, 0);
+            this.dateValidator.init();
+
+            if (isNaN(year) || year < 0)
+                errorMessage += "\n - Year should be a positive number";
+            if (isNaN(month) || month < 1 || month > 12)
+                errorMessage += "\n - Invalid value for month";
+            else if (isNaN(day) || day < 1 || day > this.dateValidator.monthDays[month - 1])
+                errorMessage += "\n - Invalid value for day";
+
+            if (errorMessage === "") {
+                console.log("Success!");
+                date.setFullYear(year, month - 1, day);
+                gameData.releaseDate = date.getTime();
+
+                controller.requestEditGame(gameData);
+            }
+            else {
+                alert("Edit game form contains the following errors: " + errorMessage);
+            }
+        },
+
+        //Validating new developer
+        validateAddDeveloperInput: function () {
+            var errorMessage = "";
+
+            var newDeveloperData = {};
+
+            newDeveloperData.name = $("#nameInput").val();
+            newDeveloperData.location = $("#developerLocationInput").val();
+            newDeveloperData.owner = $("#ownerInput").val();
+            newDeveloperData.website = $("#websiteInput").val();
+
+            if (this.validateAlphanumeric(newDeveloperData.name))
+                errorMessage += "\n - Name must contain alphanumeric characters only";
+            if (newDeveloperData.name.length > 25 || newDeveloperData.name.length < 8)
+                errorMessage += "\n - Name must be 8-25 characters long";
+
+            if (errorMessage === "") {
+                console.log("Success!");
+
+                controller.requestAddDeveloper(newDeveloperData);
+            }
+            else {
+                alert("Add new developer form contains the following errors: " + errorMessage);
+            }
+        },
+
+        //Validating edited developer
+        validateEditDeveloperInput: function () {
+            var errorMessage = "";
+
+            var developerData = {};
+
+            developerData.name = $("#editNameInput").val();
+            developerData.location = $("#editDeveloperLocationInput").val();
+            developerData.owner = $("#editOwnerInput").val();
+            developerData.website = $("#editWebsiteInput").val();
+
+            if (this.validateAlphanumeric(developerData.name))
+                errorMessage += "\n - Name must contain alphanumeric characters only";
+            if (developerData.name.length > 25 || developerData.name.length < 8)
+                errorMessage += "\n - Name must be 8-25 characters long";
+
+            if (errorMessage === "") {
+                console.log("Success!");
+
+                controller.requestEditDeveloper(developerData);
+            }
+            else {
+                alert("Edit developer form contains the following errors: " + errorMessage);
             }
         }
     };

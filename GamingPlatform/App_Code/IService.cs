@@ -134,19 +134,34 @@ public interface IService
                BodyStyle = WebMessageBodyStyle.Bare)]
     string AddNewGame(Game newGame);
 
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string EditGame(Game editedGame);
+
+    #endregion
+
+    #region Developer Operations
+
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string AddNewDeveloper(Developer newDeveloper);
+
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string EditDeveloper(Developer editedDeveloper);
+
     #endregion
 
     #region Data adding
-
-    [OperationContract]
-    [WebInvoke(Method = "GET",
-                ResponseFormat = WebMessageFormat.Json)]
-    string AddNewDeveloper(string name, string location, string owner, string website);
-
-    [OperationContract]
-    [WebInvoke(Method = "GET",
-                ResponseFormat = WebMessageFormat.Json)]
-    string addNewGame(string title, string description, string genre, string mode, string publisher, string platforms, string releaseDate, string thumbnail, string logo, string images, string review, string website, string additionalInfo);
 
     [OperationContract]
     [WebInvoke(Method = "GET",
