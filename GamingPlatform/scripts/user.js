@@ -740,6 +740,8 @@
                 if (content.length === 0)
                     return;
 
+                content = content.replace(/(?:\n\r|\r|\n)/g, '<br>');
+
                 var now = new Date();
 
                 var postData = {};

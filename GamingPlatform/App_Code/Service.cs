@@ -667,6 +667,85 @@ public class Service : IService
         return data;
     }
 
+    public string CreateReview(Review review)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(game:Game)", "(user:User)")
+            .Where((Game game) => game.title == review.game)
+            .AndWhere((User user) => user.username == review.writer)
+            .CreateUnique("user-[:REVIEWS {content: {con}, timestamp: {ts}}]->game")
+            .WithParam("con", review.content)
+            .WithParam("ts", review.timestamp)
+            .ExecuteWithoutResults();
+
+        return "success";
+    }
+
+    public string RemoveReview(string username, string title)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(game:Game)<-[r:REVIEWS]-(user:User)")
+            .Where((Game game) => game.title == title)
+            .AndWhere((User user) => user.username == username)
+            .Delete("r")
+            .ExecuteWithoutResults();
+
+        return "success";
+    }
+
+    public string GetUserReview(string username, string title)
+    {
+        string retVal = "nothing";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var res = client.Cypher
+            .Match("(game:Game)<-[r:REVIEWS]-(user:User)")
+            .Where((Game game) => game.title == title)
+            .AndWhere((User user) => user.username == username)
+            .Return((user, r) => new
+            {
+                review = r.As<Review>(),
+                writer = user.As<User>()
+            }).Results;
+
+        if (res.Count() > 0)
+            retVal = toJson(res.First());
+
+        return retVal;
+    }
+
+    public string[] GetGameReviews(string gameTitle)
+    {
+        IList<string> results = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var res = client.Cypher
+            .Match("(game:Game)<-[r:REVIEWS]-(user:User)")
+            .Where((Game game) => game.title == gameTitle)
+            .Return((user, r) => new
+            {
+                review = r.As<Review>(),
+                writer = user.As<User>()
+            }).Results;
+
+        res = res.OrderByDescending(x => x.review.timestamp);
+
+        foreach (var result in res)
+            results.Add(toJson(result));
+
+        return results.ToArray();
+    }
+
     #endregion
 
     #region Data adding

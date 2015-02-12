@@ -70,6 +70,8 @@
         //TODO
         // Other information(developer, rating system, has/doesn't have game
         ratingSystem.init();
+        reviews.init();
+
         if (activeUser !== null) {
             //gamePanelBasic.showAddReviewButton();
         }
@@ -151,6 +153,9 @@
                 var img = document.createElement("img");
                 $(img).attr("class", "img-responsive");
                 $(img).attr("src", "img/screenshots/" + image);
+                $(img).error(function () {
+                    $(this).attr("src", "http://placehold.it/640x360");
+                });
 
                 $(carDiv).html(img);
 
@@ -412,6 +417,270 @@
                 $("#remove-rating-btn").show();
             }
         }
+
+        return {
+            init: publicInit
+        }
+    })();
+
+    var reviews = (function () {
+        var noOfReviews = 0;
+        var $reviewInputDiv = null;
+
+        function publicInit() {
+            $reviewInputDiv = $("#review-input-div");
+            
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/GetUserReview",
+                data: { username: activeUser.username, title: openedGame.title },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    onUserReviewSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/GetGameReviews",
+                data: { gameTitle: openedGame.title },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    onGameReviewsSuccess(receivedData);
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+
+            $reviewInputDiv.hide();
+        }
+
+        function onUserReviewSuccess(receivedData) {
+            if (receivedData === "nothing") {
+                $reviewInputDiv.show();
+                $("#submit-review-btn").click(function () {
+                    var content = $("#review-input").val();
+                    content.trim();
+
+                    if (content.length === 0)
+                        return;
+
+                    content = content.replace(/(?:\n\r|\r|\n)/g, '<br>');
+
+                    var now = new Date();
+
+                    var reviewData = {};
+                    reviewData.content = content;
+                    reviewData.timestamp = now.getTime();
+                    reviewData.writer = activeUser.username;
+                    reviewData.game = openedGame.title;
+
+                    createReview(reviewData);
+
+                    var review = buildReviewView(reviewData, activeUser);
+                    $(review).hide();
+                    $(review).prependTo("#user-reviews-div");
+                    $(review).show('slow');
+
+                    noOfReviews++;
+                    $("#reviews-count").html("Reviews (" + noOfReviews + ")");
+                    $("#review-input").val("");
+
+                    
+                });
+            }
+            else {
+                // user has already posted.
+            }
+        }
+
+        function onGameReviewsSuccess(receivedData) {
+            var $revDiv = $("#user-reviews-div");
+            noOfReviews = receivedData.length;
+
+            if (noOfReviews > 0) {
+                $("#reviews-count").html("Reviews (" + noOfReviews + ")");
+                $revDiv.empty();
+            }
+
+            for (var i = 0; i < noOfReviews; i++) {
+                try {
+                    var item = JSON.parse(receivedData[i]);
+                }
+                catch (exception) {
+                    console.log("Error parsing review json");
+                    continue;
+                }
+
+                var view = buildReviewView(item.review, item.writer);
+                $revDiv.append(view);
+            }
+        }
+
+        function buildReviewView(review, writer) {
+            var rowDiv = document.createElement("div");
+            $(rowDiv).attr("class", "row");
+
+            var colDiv = document.createElement("div");
+            $(colDiv).attr("class", "col-xs-12");
+
+            var wellDiv = document.createElement("div");
+            $(wellDiv).attr("class", "row well");
+            $(wellDiv).attr("style", "padding: 15px");
+
+            var upperDiv = document.createElement("div");
+            $(upperDiv).attr("class", "row");
+
+            var imgDiv = document.createElement("div");
+            $(imgDiv).attr("class", "col-xs-2 text-center");
+
+            var img = document.createElement("img");
+            $(img).attr("src", "img/avatars/" + writer.avatarImage);
+            $(img).attr("class", "img-responsive img-center");
+            $(imgDiv).html(img);
+
+            if (writer.status === "Admin") {
+                $(img).attr("style", "border: red 1px solid;");
+                $(wellDiv).attr("style", "border: red 1px solid;");
+            }
+
+            $(upperDiv).append(imgDiv);
+
+            var contentDiv = document.createElement("div");
+            $(contentDiv).attr("class", "col-xs-10");
+            $(upperDiv).append(contentDiv);
+
+            if (activeUser && activeUser.username === writer.username) {
+                $(wellDiv).attr("style", "border: #FFFF66 1px solid;");
+                $(contentDiv).html("<div class='row'><div class='col-xs-12'><h5>You have posted a review." + "</h5></div></div>");
+            }
+            else
+                $(contentDiv).html("<div class='row'><div class='col-xs-12'><h5><a href='user.html?username=" + writer.username + "'>" + writer.username + "</a>" + " has posted a review." + "</h5></div></div>");
+
+            var messageDiv = document.createElement("div");
+            $(messageDiv).attr("class", "row");
+            $(messageDiv).html("<div class='col-xs-12'><p class=top-margin-15>" + review.content + "</p></div>");
+
+            $(contentDiv).append(messageDiv);
+
+
+            var footerDiv = document.createElement("div");
+            $(footerDiv).attr("class", "row");
+            $(footerDiv).attr("style", "padding-top: 15px");
+
+            var removeBtnDiv = document.createElement("div");
+            $(removeBtnDiv).attr("class", "col-xs-2");
+
+            if (hasRemovalPrivileges(writer.username)) {
+                var removeButton = document.createElement("button");
+                var $removeButton = $(removeButton);
+                $removeButton.attr("class", "btn btn-xs btn-danger");
+                $removeButton.html("Remove");
+                $removeButton.attr("type", "button");
+                $removeButton.click(function () {
+                    removeReview(writer.username, openedGame.title);
+
+                    noOfReviews--;
+                    if (noOfReviews > 0)
+                        $("#reviews-count").html("Reviews (" + noOfReviews + ")");
+                    else {
+                        $("#reviews-count").html("No reviews for this item yet.");
+                    }
+
+                    $(rowDiv).hide('fast', function () {
+                        $(rowDiv).remove();
+                    });
+                });
+                $(removeBtnDiv).append(removeButton);
+            }
+
+            var timestampDiv = document.createElement("div");
+            $(timestampDiv).attr("class", "col-xs-10");
+            var date = new Date(parseInt(review.timestamp));
+            $(timestampDiv).html("<span class='pull-right italic'>Posted on " + date.toLocaleString() + "</span");
+
+            $(footerDiv).append(removeBtnDiv);
+            $(footerDiv).append(timestampDiv);
+
+
+            $(wellDiv).append(upperDiv);
+            $(wellDiv).append(footerDiv);
+
+            $(colDiv).html(wellDiv);
+
+            $(rowDiv).html(colDiv);
+
+            return rowDiv;
+        }
+
+        function hasRemovalPrivileges(writerUsername) {
+            var hasPrivileges = false;
+            if (activeUser) {
+                if (activeUser.username === writerUsername)
+                    hasPrivileges = true;
+
+                if (activeUser.status === "Admin")
+                    hasPrivileges = true;
+            }
+
+            return hasPrivileges;
+        }
+
+        function createReview(review) {
+            $.ajax({
+                type: "POST",
+                url: "Service.svc/CreateReview",
+                data: JSON.stringify(review),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    console.log(receivedData);
+                    $("#review-input-div").hide('slow');
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+        }
+
+        function removeReview(username, game) {
+            $.ajax({
+                type: "GET",
+                url: "Service.svc/RemoveReview",
+                data: { username: username, title: game },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                processData: true,
+                success: function (receivedData) {
+                    console.log(receivedData);
+                    $("#review-input-div").show('slow');
+                },
+                error: function (result) {
+                    console.log("Error performing ajax " + result);
+                }
+            });
+        }
+
+        return {
+            init: publicInit
+        }
+    })();
+
+    var addToCollection = (function () {
+
+        function publicInit() {
+
+        }
+
 
         return {
             init: publicInit

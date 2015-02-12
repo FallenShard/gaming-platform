@@ -173,6 +173,28 @@ public interface IService
                ResponseFormat = WebMessageFormat.Json)]
     string GetGameDeveloper(string title);
 
+    [OperationContract]
+    [WebInvoke(Method = "POST",
+               ResponseFormat = WebMessageFormat.Json,
+               RequestFormat = WebMessageFormat.Json,
+               BodyStyle = WebMessageBodyStyle.Bare)]
+    string CreateReview(Review review);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string RemoveReview(string username, string title);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string GetUserReview(string username, string title);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
+    string[] GetGameReviews(string gameTitle);
+
     #endregion
 
     #region Data adding

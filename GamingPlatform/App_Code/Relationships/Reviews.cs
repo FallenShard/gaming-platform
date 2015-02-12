@@ -10,7 +10,7 @@ namespace Relationships
     /// </summary>
     public class Reviews
     {
-        public String content { get; set; }
-        public String date { get; set; }
+        public string content { get; set; }
+        public string timestamp { get; set; }
     } 
 }

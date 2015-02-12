@@ -29,7 +29,7 @@
         <!--Game title-->
         <div class="row">
             <div class="col-xs-12">
-                <h1 id="game-title" class="theme-color-yellow page-title">GAME_NAME</h1>
+                <h1 id="game-title" class="theme-color-yellow page-title"></h1>
             </div>
         </div>
 
@@ -38,7 +38,7 @@
                 <!--Game description-->
                 <div class="row well custom-well">
                     <div class="col-xs-12">
-                        <p id="game-description" class="text-justify">GAME_DESCRIPTION</p>
+                        <p id="game-description" class="text-justify"></p>
                     </div>
                 </div>
                 <!--Separator-->
@@ -61,7 +61,7 @@
                         <h4 class="attrib-meta">Developed by</h4>
                     </div>
                     <div class="col-xs-9">
-                        <h4 id="game-developed-by">GAME_DEVELOPED_BY</h4>
+                        <h4 id="game-developed-by"></h4>
                     </div>
                 </div>
                 <!--Game genre-->
@@ -70,7 +70,7 @@
                         <h4 class="attrib-meta">Genre</h4>
                     </div>
                     <div class="col-xs-9">
-                        <h4 id="game-genre">GAME_GENRE</h4>
+                        <h4 id="game-genre"></h4>
                     </div>
                 </div>
                 <!--Game mode-->
@@ -79,7 +79,7 @@
                         <h4 class="attrib-meta">Mode</h4>
                     </div>
                     <div class="col-xs-9">
-                        <h4 id="game-mode">GAME_MODE</h4>
+                        <h4 id="game-mode"></h4>
                     </div>
                 </div>
                 <!--Game release date-->
@@ -88,7 +88,7 @@
                         <h4 class="attrib-meta">Release date</h4>
                     </div>
                     <div class="col-xs-9">
-                        <h4 id="game-release-date">GAME_RELEASE_DATE</h4>
+                        <h4 id="game-release-date"></h4>
                     </div>
                 </div>
                 <!--Game platforms-->
@@ -97,7 +97,7 @@
                         <h4 class="attrib-meta">Platforms</h4>
                     </div>
                     <div class="col-xs-9">
-                        <h4 id="game-platforms">GAME_PLATFORMS</h4>
+                        <h4 id="game-platforms"></h4>
                     </div>
                 </div>
                 <!--Game publisher-->
@@ -106,60 +106,27 @@
                         <h4 class="attrib-meta">Publisher</h4>
                     </div>
                     <div class="col-xs-9">
-                        <h4 id="game-publisher">GAME_PUBLISHER</h4>
+                        <h4 id="game-publisher"></h4>
                     </div>
                 </div>
                 <!--Add game review-->
                 <div class="row user-tools">
                     <div class="col-xs-12">
+                        
+                        <h3 id="reviews-count">Reviews</h3>
                         <!--Separator-->
                         <div class="row thin-separator-meta">
                         </div>
-                        <!--Button-->
-                        <button id="add-review-button"
-                                type="button"
-                                data-toggle="modal"
-                                href="#add-review-modal"
-                                class="user-tools btn btn-primary navbar-btn">
-                            Add Review
-                        </button>
-                    </div>
-                </div>
-                <!--Game review 1-->
-                <div id="game-review-1" class="row">
-                    <div class="col-xs-12">
-                        <!--Separator-->
-                        <div class="row thin-separator-meta">
+                        <div id="review-input-div" class="row well">
+                            <h5>Write a review for this game</h5>
+                            <textarea id="review-input" class="form-control slate-bg slate-text-light" style="resize: vertical;" rows="8"></textarea>
+                            <button id="submit-review-btn" class="btn btn-default pull-right top-margin-15">Post</button>
                         </div>
-                        <!--Review-->
-                        <div class="col-xs-2">
-                            <img id="game-review-1-avatar" class="fixed-width" src="img/carousel1.png" />
-                            <h6 id="game-review-1-username">USERNAME</h6>
-                            <h6 id="game-review-1-date" class="italic-text">DATE</h6>
-                        </div>
-                        <div class="col-xs-6">
-                            <h6 id="game-review-1-content" class="yellow-text">REVIEW</h6>
+                        <div id="user-reviews-div" class="row">
+
                         </div>
                     </div>
                 </div>
-                <!--Game review 2-->
-                <div id="game-review-2" class="row">
-                    <div class="col-xs-12">
-                        <!--Separator-->
-                        <div class="row thin-separator-meta">
-                        </div>
-                        <!--Review-->
-                        <div class="col-xs-2">
-                            <img id="game-review-2-avatar" class="fixed-width" src="img/carousel2.png" />
-                            <h6 id="game-review-2-username">USERNAME</h6>
-                            <h6 id="game-review-2-date" class="italic-text">DATE</h6>
-                        </div>
-                        <div class="col-xs-6">
-                            <h6 id="game-review-2-content" class="yellow-text">REVIEW</h6>
-                        </div>
-                    </div>
-                </div>
-                <!-- Add as much as needed, maybe it can be done using javascript, I don't know... -->
             </div>
 
             <div class="col-xs-4">
