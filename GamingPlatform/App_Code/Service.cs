@@ -462,7 +462,7 @@ public class Service : IService
         client.Cypher
             .Match("(game:Game)")
             .Where((Game game) => game.title == editedGame.title)
-            .Set("user = {editedGame}")
+            .Set("game = {editedGame}")
             .WithParam("editedGame", editedGame)
             .ExecuteWithoutResults();
 
