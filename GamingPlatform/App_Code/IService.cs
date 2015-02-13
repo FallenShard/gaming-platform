@@ -77,6 +77,11 @@ public interface IService
     [OperationContract]
     [WebInvoke(Method = "GET",
                ResponseFormat = WebMessageFormat.Json)]
+    string[] GetFriendsWithMutualNotSelf(string openedUser, string activeUser);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+               ResponseFormat = WebMessageFormat.Json)]
     string[] GetFriendNames(string username);
 
     [OperationContract]
@@ -274,6 +279,42 @@ public interface IService
     string GetDeveloperByName(string name);
 
     #endregion
+
+    #region TRIVIA
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string GetMostFriendsUser();
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string GetBestRatedGame();
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string GetBestDeveloper();
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string GetMostGamesUser();
+
+    #endregion
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string ConnectGameAndDev(string title, string name);
+
+    [OperationContract]
+    [WebInvoke(Method = "GET",
+                ResponseFormat = WebMessageFormat.Json)]
+    string DisconnectGameAndDev(string title, string name);
+
+
 
     #region Admin list calls
 

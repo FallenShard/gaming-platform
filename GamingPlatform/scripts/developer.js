@@ -95,7 +95,7 @@
                 $("#developer-owner").html(developerData.owner);
                 $("#developer-website").html("<a href='http://" + developerData.website + "'>" + developerData.website + "</a>");
 
-                $("#developer-logo").attr("src", developerData.logo);
+                $("#developer-logo").attr("src", "img/logos/" + developerData.logo);
 
                 $("#developer-logo").error(function () {
                     $(this).attr("src", "http://placehold.it/256x256");

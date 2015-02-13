@@ -581,13 +581,13 @@
                 else {
                     $.ajax({
                         type: "GET",
-                        url: "Service.svc/GetFriends",
-                        data: { username: openedUser.username },
+                        url: "Service.svc/GetFriendsWithMutualNotSelf",
+                        data: { openedUser: openedUser.username, activeUser: activeUser.username },
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
                         processData: true,
                         success: function (receivedData) {
-                            onFriendsSuccess(receivedData);
+                            onFriendsAndMutualSuccess(receivedData);
                         },
                         error: function (result) {
                             console.log("Error performing ajax " + result);

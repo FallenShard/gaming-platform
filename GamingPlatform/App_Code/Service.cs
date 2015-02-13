@@ -268,8 +268,9 @@ public class Service : IService
 
         var friendNodes = client.Cypher
             .Match("(me:User {username: {myname}})-[:IS_FRIENDS_WITH]-(friend:User)")
-            .OptionalMatch("(me:User {username: {myname}})-[:IS_FRIENDS_WITH]-(friend:User)-[:IS_FRIENDS_WITH]-(fof:User)")
+            .OptionalMatch("(friend:User)-[:IS_FRIENDS_WITH]-(fof:User)")
             .WithParam("myname", username)
+            .Where("(me)-[:IS_FRIENDS_WITH]-(fof)")
             .Return((friend, fof) => new
             {
                 friend = friend.As<User>(),
@@ -277,7 +278,34 @@ public class Service : IService
             })
             .Results;
 
-        //friendNodes.OrderByDescending(x => x.mutual.Count());
+        foreach (var entry in friendNodes)
+        {
+            friends.Add(toJson(entry));
+        }
+
+        return friends.ToArray();
+    }
+
+    public string[] GetFriendsWithMutualNotSelf(string openedUser, string activeUser)
+    {
+        IList<string> friends = new List<string>();
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var friendNodes = client.Cypher
+            .Match("(me:User {username: {myname}})", "(opened:User {username: {openedUser}})-[:IS_FRIENDS_WITH]-(friend:User)")
+            .OptionalMatch("(friend)-[IS_FRIENDS_WITH]-(fofof:User)")
+            .WithParam("myname", activeUser)
+            .WithParam("openedUser", openedUser)
+            .Where("(me)-[:IS_FRIENDS_WITH]-(fofof)")
+            .AndWhere("me.username <> friend.username")
+            .Return((friend, fofof) => new
+            {
+                friend = friend.As<User>(),
+                mutual = fofof.CollectAs<User>()
+            })
+            .Results;
 
         foreach (var entry in friendNodes)
         {
@@ -1139,4 +1167,147 @@ public class Service : IService
     }
 
     #endregion
+
+
+
+    #region TRIVIA
+
+    public string GetMostFriendsUser()
+    {
+        string res = "none";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var result = client.Cypher
+            .OptionalMatch("(best:User)-[IS_FRIENDS_WITH]-(friend:User)")
+            .Return((best, friend) => new
+            {
+                user = best.As<User>(),
+                count = friend.Count()
+            }).Results;
+
+        result = result.OrderByDescending(x => x.count);
+
+        if (result.Count() > 0)
+            res = toJson(result.First());
+
+        return res;
+    }
+
+
+    public string GetBestRatedGame()
+    {
+        string res = "none";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var result = client.Cypher
+            .Match("(best:Game)<-[r:RATES]-(user:User)")
+            .Return((best, r) => new
+            {
+                game = best.As<Game>(),
+                rates = Return.As<int>("count(r)"),
+                totalRates = Return.As<int>("sum(r.rating)")//r.CollectAs<Rates>()
+            }).Results;
+
+        result = result.OrderByDescending(x => x.totalRates / x.rates).ThenByDescending(x => x.rates);
+
+        if (result.Count() > 0)
+        {
+            res = toJson(result.First());
+        }
+            
+
+        return res;
+    }
+
+
+    public string GetBestDeveloper()
+    {
+        string res = "none";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var result = client.Cypher
+            .Match("(best:Developer)-[DEVELOPS]->(game:Game)", "(game:Game)<-[r:RATES]-(u:User)")
+            .Return((best, r, game) => new
+            {
+                dev = best.As<Developer>(),
+                rates = Return.As<int>("count(r)"),
+                totalRates = Return.As<int>("sum(r.rating)"),
+                gameCount = Return.As<int>("count(game)")
+            }).Results;
+
+        result = result.OrderByDescending(x => x.totalRates / x.rates).ThenByDescending(x => x.gameCount).ThenByDescending(x => x.rates);
+
+        if (result.Count() > 0)
+        {
+            res = toJson(result.First());
+        }
+
+
+        return res;
+    }
+
+
+    public string GetMostGamesUser()
+    {
+        string res = "none";
+
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        var result = client.Cypher
+            .OptionalMatch("(best:User)-[OWNS]-(game:Game)")
+            .Return((best, game) => new
+            {
+                user = best.As<User>(),
+                count = game.Count()
+            }).Results;
+
+        result = result.OrderByDescending(x => x.count);
+
+        if (result.Count() > 0)
+            res = toJson(result.First());
+
+        return res;
+    }
+
+
+
+    #endregion
+
+
+    public string ConnectGameAndDev(string title, string name)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(game:Game)", "(dev:Developer)")
+            .Where((Game game) => game.title == title)
+            .AndWhere((Developer dev) => dev.name == name)
+            .CreateUnique("(dev)-[:DEVELOPS]->(game)")
+            .ExecuteWithoutResults();
+
+        return "success";
+    }
+
+    public string DisconnectGameAndDev(string title, string name)
+    {
+        GraphClient client = new GraphClient(new Uri("http://localhost:7474/db/data"));
+        client.Connect();
+
+        client.Cypher
+            .Match("(game:Game)<-[r:DEVELOPS]-(dev:Developer)")
+            .Where((Game game) => game.title == title)
+            .AndWhere((Developer dev) => dev.name == name)
+            .Delete("r")
+            .ExecuteWithoutResults();
+
+        return "success";
+    }
 }

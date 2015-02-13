@@ -10,6 +10,11 @@
     var selGameEl = null;
     var selDevEl = null;
 
+    var selConGame = null;
+    var selConDev = null;
+    var selConGameEl = null;
+    var selConDevEl = null;
+
 
     function enableTabs() {
         $('#user-tabs a').click(function (e) {
@@ -33,6 +38,48 @@
         //else
         //    window.location.replace("index.html");
 
+        $("#connect-button").click(function () {
+            if (selConGame && selConDev) {
+                $.ajax({
+                    type: "GET",
+                    url: "Service.svc/ConnectGameAndDev",
+                    data: { title: selConGame.title, name: selConDev.name },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    processData: true,
+                    success: function (receivedData) {
+                        alert("Connected " + selConGame.title + " and " + selConDev.name);
+                        initDevs();
+                        initGames();
+                    },
+                    error: function (result) {
+                        console.log("Error performing POST ajax " + result);
+                    }
+                });
+            }
+        });
+
+        $("#disconnect-button").click(function () {
+            if (selConGame && selConDev) {
+                $.ajax({
+                    type: "GET",
+                    url: "Service.svc/DisconnectGameAndDev",
+                    data: { title: selConGame.title, name: selConDev.name },
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    processData: true,
+                    success: function (receivedData) {
+                        alert("Disconnected " + selConGame.title + " and " + selConDev.name);
+                        initDevs();
+                        initGames();
+                    },
+                    error: function (result) {
+                        console.log("Error performing POST ajax " + result);
+                    }
+                });
+            }
+        });
+
         enableTabs();
 
         initGames();
@@ -46,13 +93,6 @@
         $("#edit-game-alert").hide();
         $("#edit-developer-alert").hide();
 
-        $("#remove-game-button").click(function () {
-            // remove selected game
-        });
-
-        $("#remove-devs-button").click(function () {
-            // remove selected developer
-        });
 
         //FOR GAMES//////////////////////////////////////////////////////////////////////////////////
         //Adding game
@@ -69,7 +109,7 @@
             }
             else {
                 $("#edit-game-button").attr("href", "#edit-game-modal");
-                initEditGameModal(selGame);
+                fillEditGame();
             }
         });
 
@@ -102,7 +142,7 @@
             }
             else {
                 $("#edit-devs-button").attr("href", "#edit-developer-modal");
-                initEditDeveloperModal(selGame);
+                fillEditDeveloper();
             }
         });
 
@@ -140,10 +180,14 @@
 
     function onGamesSuccess(receivedData) {
         var $gameList = $("#game-list");
+        var $gameConList = $("#game-con-list");
         $gameList.empty();
+        $gameConList.empty();
         games = [];
         selGame = null;
         selGameEl = null;
+        selConGame = null;
+        selConGameEl = null;
 
         for (var i = 0; i < receivedData.length; i++) {
             try {
@@ -175,6 +219,26 @@
             });
 
             $gameList.append(listElement);
+
+            // for connecting
+            var leftListElement = document.createElement("a");
+            $(leftListElement).attr("class", "list-group-item");
+            $(leftListElement).attr("value", i);
+            $(leftListElement).html(item.title);
+            $(leftListElement).click(function () {
+                var ind = parseInt($(this).attr("value"));
+
+                if (selConGameEl)
+                    selConGameEl.removeClass("active");
+
+                selConGameEl = $(this);
+                selConGameEl.addClass("active");
+                selConGame = games[ind];
+
+                console.log(selConGame);
+            });
+
+            $gameConList.append(leftListElement);
         }
     }
 
@@ -197,10 +261,14 @@
 
     function onDevsSuccess(receivedData) {
         var $devList = $("#dev-list");
+        var $devConList = $("#dev-con-list");
         $devList.empty();
+        $devConList.empty();
         devs = [];
         selDev = null;
         selDevEl = null;
+        selConDev = null;
+        selConDevEl = null;
 
         for (var i = 0; i < receivedData.length; i++) {
             try {
@@ -232,6 +300,26 @@
             });
 
             $devList.append(listElement);
+
+            // for connecting
+            var rightListElement = document.createElement("a");
+            $(rightListElement).attr("class", "list-group-item");
+            $(rightListElement).attr("value", i);
+            $(rightListElement).html(item.name);
+            $(rightListElement).click(function () {
+                var ind = parseInt($(this).attr("value"));
+
+                if (selConDevEl)
+                    selConDevEl.removeClass("active");
+
+                selConDevEl = $(this);
+                selConDevEl.addClass("active");
+                selConDev = devs[ind];
+
+                console.log(selConDev);
+            });
+
+            $devConList.append(rightListElement);
         }
     }
 
@@ -240,20 +328,28 @@
             $(editTitleInput).val(selGame.title);
             $(editDescriptionInput).val(selGame.description);
             $(editGenreInput).val(selGame.genre);
+            $(editModeInput).val(selGame.mode);
+            $(editPublisherInput).val(selGame.publisher);
+            $(editPlatformsInput).val(stringArrayToString(selGame.platforms));
+            $(editThumbnailInput).val(selGame.thumbnail);
+            $(editImagesInput).val(stringArrayToString(selGame.images));
+
+            var releaseDate = model.createDate(selGame, "releaseDate");
+            $(editGameYearInput).val(releaseDate.getFullYear());
+            $(editGameMonthInput).val(releaseDate.getMonth() + 1);
+            $(editGameDayInput).val(releaseDate.getDate());
         }
     }
 
     function fillEditDeveloper() {
-        if (selGame) {
-            $(editTitleInput).val(selGame.title);
-            $(editDescriptionInput).val(selGame.description);
-            $(editGenreInput).val(selGame.genre);
+        if (selDev) {
+            $(editNameInput).val(selDev.name);
+            $(editDeveloperLocationInput).val(selDev.location);
+            $(editOwnerInput).val(selDev.owner);
+            $(editWebsiteInput).val(selDev.website);
+            $(editDeveloperLogoInput).val(selDev.logo);
         }
     }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////
-    //MY PART////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////
 
     //Validating functions and variables and helping functions
     function validateAlphanumeric(string) {
@@ -290,6 +386,15 @@
         return new Date(parseInt(object[dateProp]));
     }
 
+    function stringArrayToString(stringArray) {
+        var retVal = "";
+        for (var i = 0; i < stringArray.length; i++) {
+            retVal += stringArray[i] + ", ";
+        }
+        retVal = retVal.slice(0, -2);
+        return retVal;
+    }
+
     //FOR GAMES//////////////////////////////////////////////////////////////////////////////////////
 
     //ADDING GAME
@@ -309,8 +414,6 @@
         newGameData.thumbnail = $("#thumbnailInput").val();
         newGameData.images = $("#imagesInput").val().split(",");
 
-        if (validateAlphanumeric(newGameData.title))
-            errorMessage += "\n - Title must contain alphanumeric characters only";
         if (newGameData.title.length > 30 || newGameData.title.length < 8)
             errorMessage += "\n - Title must be 8-30 characters long";
         if (newGameData.description.length < 50)
@@ -366,24 +469,13 @@
         if (receivedData === "failed")
             alert("Add new game form contains the following errors: \n - Game with that title already exists");
         else {
-            $("#add-game-alert").show('fast');
-                
-            setTimeout(function () {
-                $('#add-game-alert').modal('hide');
-            }, 500);
-            setTimeout(function () {
-                //location.reload(true);
-                //window.location.replace("index.html");
-            }, 1000);
+            clearAddGameModal();
+            $("#add-game-modal").modal('hide');
+            alert("Game added");
         }
     }
 
     //EDITING GAME
-
-    //Filling the modal
-    function initEditGameModal(gameData) {
-        //TO DO
-    }
 
     //Validating edited game input
     function validateEditGameInput() {
@@ -400,10 +492,6 @@
         gameData.thumbnail = $("#editThumbnailInput").val();
         gameData.images = $("#editImagesInput").val().split(",");
 
-        if (validateAlphanumeric(gameData.title))
-            errorMessage += "\n - Title must contain alphanumeric characters only";
-        if (gameData.title.length > 30 || gameData.title.length < 8)
-            errorMessage += "\n - Title must be 8-30 characters long";
         if (gameData.description.length < 50)
             errorMessage += "\n - Description must be at least 50 characters long";
 
@@ -442,7 +530,26 @@
             dataType: "json",
             processData: true,
             success: function (receivedData) {
+                //alert("Edited game");
                 onEditGameSuccess(receivedData);
+                
+            },
+            error: function (result) {
+                console.log("Error performing POST ajax " + result);
+            }
+        });
+    }
+
+    function requestEditDeveloper(developerData) {
+        $.ajax({
+            type: "POST",
+            url: "Service.svc/EditDeveloper",
+            data: JSON.stringify(developerData),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            processData: true,
+            success: function (receivedData) {
+                onEditDeveloperSuccess(receivedData);
             },
             error: function (result) {
                 console.log("Error performing POST ajax " + result);
@@ -451,15 +558,9 @@
     }
 
     function onEditGameSuccess(receivedData) {
-        $("#edit-game-alert").show('fast');
-
-        setTimeout(function () {
-            $('#edit-game-alert').modal('hide');
-        }, 500);
-        setTimeout(function () {
-            //location.reload(true);
-            //window.location.replace("index.html");
-        }, 1000);
+        $("#edit-game-modal").modal('hide');
+        alert("Game edited");
+        initGames();
     }
 
     //REMOVING GAME
@@ -482,6 +583,29 @@
         });
     }
 
+    function clearAddGameModal() {
+        $(titleInput).val("");
+        $(descriptionInput).val("");
+        $(genreInput).val("");
+        $(modeInput).val("");
+        $(publisherInput).val("");
+        $(platformsInput).val("");
+        $(thumbnailInput).val("");
+        $(imagesInput).val("");
+
+        $(gameYearInput).val("");
+        $(gameMonthInput).val("");
+        $(gameDayInput).val("");
+    }
+
+    function clearAddDeveloperModal() {
+        $(nameInput).val("");
+        $(developerLocationInput).val("");
+        $(ownerInput).val("");
+        $(websiteInput).val("");
+        $(developerLogoInput).val("");
+    }
+
     //FOR DEVELOPERS/////////////////////////////////////////////////////////////////////////////////
 
     //ADDING DEVELOPER
@@ -498,8 +622,6 @@
         newDeveloperData.website = $("#websiteInput").val();
         newDeveloperData.logo = $("#developerLogoInput").val();
 
-        if (validateAlphanumeric(newDeveloperData.name))
-            errorMessage += "\n - Name must contain alphanumeric characters only";
         if (newDeveloperData.name.length > 25 || newDeveloperData.name.length < 8)
             errorMessage += "\n - Name must be 8-25 characters long";
 
@@ -537,24 +659,13 @@
         if (receivedData === "failed")
             alert("Add new game form contains the following errors: \n - Game with that title already exists");
         else {
-            $("#add-developer-alert").show('fast');
-
-            setTimeout(function () {
-                $('#add-developer-alert').modal('hide');
-            }, 500);
-            setTimeout(function () {
-                //location.reload(true);
-                //window.location.replace("index.html");
-            }, 1000);
+            clearAddDeveloperModal();
+            $("#add-developer-modal").modal('hide');
+            alert("Developer added");
         }
     }
 
     //EDITING DEVELOPER
-
-    //Filling the modal
-    function initEditDeveloperModal() {
-        //TODO
-    }
 
     function validateEditDeveloperInput () {
         var errorMessage = "";
@@ -566,11 +677,6 @@
         developerData.owner = $("#editOwnerInput").val();
         developerData.website = $("#editWebsiteInput").val();
         developerData.logo = $("#editDeveloperLogoInput").val();
-
-        if (validateAlphanumeric(developerData.name))
-            errorMessage += "\n - Name must contain alphanumeric characters only";
-        if (developerData.name.length > 25 || developerData.name.length < 8)
-            errorMessage += "\n - Name must be 8-25 characters long";
 
         if (errorMessage === "") {
             console.log("Success!");
@@ -600,15 +706,10 @@
     }
 
     function onEditDeveloperSuccess(receivedData) {
-        $("#edit-developer-alert").show('fast');
-
-        setTimeout(function () {
-            $('#edit-developer-alert').modal('hide');
-        }, 500);
-        setTimeout(function () {
-            //location.reload(true);
-            //window.location.replace("index.html");
-        }, 1000);
+        $("#edit-developer-modal").modal('hide');
+        alert("Developer edited");
+                
+        initDevs();
     }
 
     //REMOVING DEVELOPER
@@ -631,9 +732,6 @@
         });
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////
-    //MY PART END////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////
 
     $(document).ready(documentInit);
 })();
